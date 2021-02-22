@@ -1,0 +1,19 @@
+version: v1.0
+name: master-deploy
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: master-deploy
+    task:
+      secrets:
+        - name: rubygems-deploy
+      jobs:
+        - name: master-deploy
+          commands:
+            - checkout --use-cache
+            - gem build rails_api_logger
+            - chmod 0600 ~/.gem/credentials
+            - gem push rails_api_logger-*.gem

@@ -1,0 +1,2 @@
+class InboundRequestLog < RequestLog
+end

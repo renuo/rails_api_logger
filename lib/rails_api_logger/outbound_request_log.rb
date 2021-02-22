@@ -1,0 +1,2 @@
+class OutboundRequestLog < RequestLog
+end

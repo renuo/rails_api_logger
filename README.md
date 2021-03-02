@@ -77,22 +77,30 @@ This will guarantee that the log is always persisted, even in case of errors.
 ## Log Inbound Requests
 
 If you are exposing some API you might be interested in logging the requests you receive.
-You can do so in your controller by adding:
+You can do so by adding this middleware in `config/application.rb`
 
 ```ruby
-around_action :log_inbound_request
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestLoggerMiddleware
 ``` 
 
-you can also log only requests that have an impact in your system with:
+this will by default only log requests that have an impact in your system (POST, PUT, and PATCH calls).
+If you want to log all requests (also GET ones) use
 
 ```ruby
-around_action :log_inbound_request, if: :request_with_state_change?
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestLoggerMiddleware, only_state_change: false
 ```
 
-this will create a log entry only for POST, PUT, and PATCH calls. 
+If you want to log only requests on a certain path, you can pass a regular expression:
+
+```ruby
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestLoggerMiddleware, path_regexp: /api/
+```
+
 
 In the implementation of your API, you can call any time `attach_inbound_request_loggable(model)`
 to attach an already persisted model to the log record.
+
+
 
 For example:
 ```ruby

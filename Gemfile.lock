@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_api_logger (0.1.1)
+    rails_api_logger (0.2.0)
       activerecord (>= 4.1.0)
       railties (>= 4.1.0)
 
@@ -38,16 +38,14 @@ GEM
     crass (1.0.6)
     diff-lcs (1.4.4)
     erubi (1.10.0)
-    i18n (1.8.8)
+    i18n (1.8.9)
       concurrent-ruby (~> 1.0)
     loofah (2.9.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     method_source (1.0.0)
-    mini_portile2 (2.5.0)
-    minitest (5.14.3)
-    nokogiri (1.11.1)
-      mini_portile2 (~> 2.5.0)
+    minitest (5.14.4)
+    nokogiri (1.11.1-x86_64-darwin)
       racc (~> 1.4)
     parallel (1.20.1)
     parser (3.0.0.0)

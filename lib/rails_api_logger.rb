@@ -4,6 +4,7 @@ require "rails_api_logger/request_log"
 require "rails_api_logger/inbound_request_log"
 require "rails_api_logger/outbound_request_log"
 require "rails_api_logger/inbound_requests_logger"
+require "rails_api_logger/inbound_requests_logger_middleware"
 
 module RailsApiLogger
   class Error < StandardError; end

@@ -8,7 +8,6 @@ class RequestLog < ActiveRecord::Base
 
   scope :failed, -> { where("response_code not like '2%'") }
 
-  validates :request_body, presence: true
   validates :method, presence: true
   validates :path, presence: true
 

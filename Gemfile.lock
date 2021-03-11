@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_api_logger (0.2.4)
+    rails_api_logger (0.2.5)
       activerecord (>= 4.1.0)
       railties (>= 4.1.0)
 

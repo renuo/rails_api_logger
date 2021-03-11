@@ -4,7 +4,7 @@ module InboundRequestsLogger
   private
 
   def attach_inbound_request_loggable(loggable)
-    request.env["inbound_request_log"].update_columns(loggable_id: loggable.id) if loggable&.persisted?
+    request.env["inbound_request_log"].update(loggable: loggable) if loggable&.persisted?
   end
 end
 

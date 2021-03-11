@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_api_logger (0.2.3)
+    rails_api_logger (0.2.4)
       activerecord (>= 4.1.0)
       railties (>= 4.1.0)
 
@@ -45,7 +45,7 @@ GEM
       nokogiri (>= 1.5.9)
     method_source (1.0.0)
     minitest (5.14.4)
-    nokogiri (1.11.1-x86_64-darwin)
+    nokogiri (1.11.2-x86_64-darwin)
       racc (~> 1.4)
     parallel (1.20.1)
     parser (3.0.0.0)

@@ -12,7 +12,8 @@ class RequestLog < ActiveRecord::Base
   validates :path, presence: true
 
   def self.from_request(request)
-    body = (request.body.respond_to?(:read) ? request.body.read : request.body).dup.force_encoding("UTF-8")
+    request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
+    body = request_body ? request_body.dup.force_encoding("UTF-8") : nil
     begin
       body = JSON.parse(body) if body.present?
     rescue JSON::ParserError

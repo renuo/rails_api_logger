@@ -29,6 +29,7 @@ And then execute:
 
 ```bash
 bundle install
+spring stop # if it's running. otherwise it does not see the new generator 
 bundle exec rails generate rails_api_logger:install
 bundle exec rails db:migrate
 ```

@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "railties", ">= 4.1.0"
   spec.add_dependency "activerecord", ">= 4.1.0"
+  spec.add_dependency "nokogiri"
 
   spec.add_development_dependency "sqlite3", "~> 1.4.0"
   spec.add_development_dependency "standard", "~> 0.13.0"

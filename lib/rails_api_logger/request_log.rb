@@ -21,4 +21,27 @@ class RequestLog < ActiveRecord::Base
     end
     create(path: request.path, request_body: body, method: request.method)
   end
+
+  def formatted_request_body
+    formatted_body(request_body)
+  end
+
+  def formatted_response_body
+    formatted_body(response_body)
+  end
+
+  def formatted_body(body)
+    if body.is_a?(Hash)
+      JSON.pretty_generate(body)
+    else
+      xml = Nokogiri::XML(body)
+      if xml.errors.any?
+        body
+      else
+        xml.to_xml(indent: 2)
+      end
+    end
+  rescue
+    body
+  end
 end

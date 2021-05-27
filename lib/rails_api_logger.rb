@@ -1,4 +1,5 @@
 require "active_record"
+require "nokogiri"
 require "rails_api_logger/version"
 require "rails_api_logger/request_log"
 require "rails_api_logger/inbound_request_log"

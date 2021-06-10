@@ -19,7 +19,7 @@ class RequestLog < ActiveRecord::Base
     rescue JSON::ParserError
       body
     end
-    create(path: request.path, request_body: body, method: request.method)
+    create(path: request.path, request_body: body, method: request.method, started_at: Time.current)
   end
 
   def formatted_request_body
@@ -43,5 +43,10 @@ class RequestLog < ActiveRecord::Base
     end
   rescue
     body
+  end
+
+  def duration
+    return if started_at.nil? || ended_at.nil?
+    ended_at - started_at
   end
 end

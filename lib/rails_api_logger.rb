@@ -21,6 +21,7 @@ module RailsApiLogger
     log.response_body = {error: e.message}
     raise
   ensure
+    log.ended_at = Time.current
     log.save!
   end
 end

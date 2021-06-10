@@ -16,6 +16,8 @@ This gem creates two database tables to log the following information:
 * **request_body** what was included in the request body
 * **response_body** what was included in the response body 
 * **response_code** the HTTP response code of the request 
+* **started_at** when the request started
+* **ended_at** when the request finished
 
 ## Installation
 

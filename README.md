@@ -1,5 +1,7 @@
 # Rails API Logger
 
+The simplest way to log API requests of your Rails application in your database.
+
 The Rails API logger gem introduces a set of tools to log and debug API requests.
 It works on two sides:
 

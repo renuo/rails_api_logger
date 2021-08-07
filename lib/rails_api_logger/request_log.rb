@@ -13,13 +13,14 @@ class RequestLog < ActiveRecord::Base
 
   def self.from_request(request)
     request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
+    headers = request&.each_header&.to_h&.to_json || {}
     body = request_body ? request_body.dup.force_encoding("UTF-8") : nil
     begin
       body = JSON.parse(body) if body.present?
     rescue JSON::ParserError
       body
     end
-    create(path: request.path, request_body: body, method: request.method, started_at: Time.current)
+    create(path: request.path, request_body: body, method: request.method, request_headers: headers, started_at: Time.current)
   end
 
   def formatted_request_body

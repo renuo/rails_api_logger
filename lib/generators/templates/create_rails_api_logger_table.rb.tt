@@ -5,6 +5,7 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migr
       t.string :path
       t.text :request_body
       t.text :response_body
+      t.text :request_headers
       t.integer :response_code
       t.timestamp :started_at
       t.timestamp :ended_at
@@ -17,6 +18,7 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migr
       t.string :path
       t.text :request_body
       t.text :response_body
+      t.text :request_headers
       t.integer :response_code
       t.timestamp :started_at
       t.timestamp :ended_at

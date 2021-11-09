@@ -1,3 +1,6 @@
+# 0.4.1
+* Fixed the `.failed` scope.
+
 # 0.4.0
 * Added `started_at`, `ended_at` and `duration` methods.
 

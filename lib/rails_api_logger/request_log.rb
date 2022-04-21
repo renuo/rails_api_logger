@@ -11,7 +11,7 @@ class RequestLog < ActiveRecord::Base
   validates :method, presence: true
   validates :path, presence: true
 
-  def self.from_request(request)
+  def self.from_request(request, loggable: nil)
     request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
     body = request_body ? request_body.dup.force_encoding("UTF-8") : nil
     begin
@@ -19,7 +19,18 @@ class RequestLog < ActiveRecord::Base
     rescue JSON::ParserError
       body
     end
-    create(path: request.path, request_body: body, method: request.method, started_at: Time.current)
+    create(path: request.path, request_body: body, method: request.method, started_at: Time.current, loggable: loggable)
+  end
+
+  def from_response(response)
+    self.response_code = response.code
+    body = response.body ? response.body.dup.force_encoding("UTF-8") : nil
+    begin
+      body = JSON.parse(body) if body.present?
+    rescue JSON::ParserError
+      body
+    end
+    self.response_body = body
   end
 
   def formatted_request_body

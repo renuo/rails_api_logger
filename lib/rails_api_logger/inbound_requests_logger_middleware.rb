@@ -1,4 +1,4 @@
-class InboundRequestLoggerMiddleware
+class InboundRequestsLoggerMiddleware
   attr_accessor :only_state_change, :path_regexp
 
   def initialize(app, only_state_change: true, path_regexp: /.*/)

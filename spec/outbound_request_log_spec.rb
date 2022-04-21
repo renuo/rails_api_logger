@@ -3,9 +3,9 @@ require "spec_helper"
 RSpec.describe OutboundRequestLog do
   it "logs a request in the database" do
     uri = URI("http://example.com/some_path?query=string")
-    http = Net::HTTP.start(uri.host, uri.port)
+    http = Net::HTTP.new(uri.host, uri.port)
     request = Net::HTTP::Get.new(uri)
-    RailsApiLogger.call(uri, http, request)
+    RailsApiLogger.new.call(uri, request) { http.start { |http| http.request(request) } }
     expect(OutboundRequestLog.count).to eq(1)
     log = OutboundRequestLog.last
     expect(log.started_at).to be_present
@@ -33,7 +33,7 @@ RSpec.describe OutboundRequestLog do
       expect(duration).to(be < 62)
     end
 
-    context 'when one of the two values is not set' do
+    context "when one of the two values is not set" do
       it "returns nil" do
         expect(OutboundRequestLog.new.duration).to be_nil
         expect(OutboundRequestLog.new(started_at: 3.seconds.ago).duration).to be_nil

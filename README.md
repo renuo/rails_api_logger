@@ -72,9 +72,9 @@ You can also use the provided logger class to do that in a simpler and safer man
 
 ```ruby
 uri = URI('http://example.com/some_path?query=string')
-http = Net::HTTP.start(uri.host, uri.port)
+http = Net::HTTP.new(uri.host, uri.port)
 request = Net::HTTP::Get.new(uri)
-response = RailsApiLogger.call(uri, http, request)
+response = RailsApiLogger.new.call(uri, request) { http.start { |http| http.request(request) } }
 ``` 
 
 This will guarantee that the log is always persisted, even in case of errors.

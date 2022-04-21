@@ -1,19 +1,19 @@
 require "active_record"
 require "nokogiri"
-require "rails_api_logger/version"
-require "rails_api_logger/request_log"
-require "rails_api_logger/inbound_request_log"
-require "rails_api_logger/outbound_request_log"
-require "rails_api_logger/inbound_requests_logger"
-require "rails_api_logger/inbound_requests_logger_middleware"
+require "zeitwerk"
 
-module RailsApiLogger
+loader = Zeitwerk::Loader.for_gem
+loader.collapse("#{__dir__}/rails_api_logger")
+loader.setup
+
+class RailsApiLogger
+  VERSION = "0.5.0"
+
   class Error < StandardError; end
 
-  def self.call(uri, http, request)
+  def call(url, request)
     log = OutboundRequestLog.from_request(request)
-
-    http.request(request).tap do |response|
+    yield.tap do |response|
       log.response_code = response.code
       log.response_body = response.body
     end

@@ -15,5 +15,4 @@ blocks:
           commands:
             - checkout --use-cache
             - gem build rails_api_logger
-            - chmod 0600 ~/.gem/credentials
             - gem push rails_api_logger-*.gem

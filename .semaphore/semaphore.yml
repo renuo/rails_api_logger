@@ -19,7 +19,8 @@ blocks:
         commands:
           - checkout --use-cache
           - cache restore
-          - bundle install --deployment -j 4 --path vendor/bundle
+          - bundle config set path 'vendor/bundle'
+          - bundle install -j 4
           - cache store
       jobs:
         - name: tests

@@ -8,8 +8,6 @@ loader.do_not_eager_load("#{__dir__}/generators")
 loader.setup
 
 class RailsApiLogger
-  VERSION = "0.5.0"
-
   class Error < StandardError; end
 
   def initialize(loggable = nil)

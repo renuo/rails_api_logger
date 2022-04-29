@@ -1,3 +1,12 @@
+# 0.6.0
+* Fixes an important concurrency issue by removing instance variables in the rack middleware
+
+
+# 0.5.0
+* Started using Zeitwerk
+* Removed RailsAdmin specific code
+* Improved RailsApiLogger class
+
 # 0.4.1
 * Fixed the `.failed` scope.
 

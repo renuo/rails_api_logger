@@ -18,6 +18,9 @@ RSpec.configure do |config|
   end
 end
 
+class Book < ActiveRecord::Base
+end
+
 def database_setup
   ActiveRecord::Base.logger = nil
   ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
@@ -47,6 +50,12 @@ def database_setup
       t.timestamp :started_at
       t.timestamp :ended_at
       t.references :loggable, index: true, polymorphic: true
+      t.timestamps null: false
+    end
+
+    create_table :books do |t|
+      t.string :title
+      t.string :author
       t.timestamps null: false
     end
   end

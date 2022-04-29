@@ -27,3 +27,7 @@ class RailsApiLogger
     log.save!
   end
 end
+
+ActiveSupport.on_load(:action_controller) do
+  include InboundRequestsLogger
+end

@@ -11,13 +11,14 @@ class InboundRequestsLoggerMiddleware
     request = ActionDispatch::Request.new(env)
     logging = log?(env, request)
     if logging
-      @inbound_request_log = InboundRequestLog.from_request(request)
-      env["inbound_request_log"] = @inbound_request_log
+      env["INBOUND_REQUEST_LOG"] = InboundRequestLog.from_request(request)
       request.body.rewind
     end
     status, headers, body = @app.call(env)
     if logging
-      @inbound_request_log.update_columns(response_body: parsed_body(body), response_code: status, ended_at: Time.current)
+      env["INBOUND_REQUEST_LOG"].update_columns(response_body: parsed_body(body),
+                                                response_code: status,
+                                                ended_at: Time.current)
     end
     [status, headers, body]
   end
@@ -25,7 +26,7 @@ class InboundRequestsLoggerMiddleware
   private
 
   def log?(env, request)
-    env["REQUEST_URI"] =~ path_regexp && (!only_state_change || request_with_state_change?(request))
+    env["PATH_INFO"] =~ path_regexp && (!only_state_change || request_with_state_change?(request))
   end
 
   def parsed_body(body)

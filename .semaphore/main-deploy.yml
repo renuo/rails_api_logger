@@ -1,17 +1,17 @@
 version: v1.0
-name: master-deploy
+name: main-deploy
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 
 blocks:
-  - name: master-deploy
+  - name: main-deploy
     task:
       secrets:
         - name: rubygems-deploy
       jobs:
-        - name: master-deploy
+        - name: main-deploy
           commands:
             - checkout --use-cache
             - gem build rails_api_logger

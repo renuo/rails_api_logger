@@ -28,5 +28,5 @@ blocks:
             - bundle exec standardrb
             - bundle exec rspec
 promotions:
-  - name: master
-    pipeline_file: master-deploy.yml
+  - name: main
+    pipeline_file: main-deploy.yml

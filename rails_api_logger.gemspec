@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = "rails_api_logger"
-  spec.version = "0.6.1"
+  spec.version = "0.6.2"
   spec.authors = ["Alessandro Rodi"]
   spec.email = ["alessandro.rodi@renuo.ch"]
 

@@ -4,7 +4,7 @@ require "zeitwerk"
 
 loader = Zeitwerk::Loader.for_gem
 loader.collapse("#{__dir__}/rails_api_logger")
-loader.do_not_eager_load("#{__dir__}/generators")
+loader.ignore("#{__dir__}/generators")
 loader.setup
 
 class RailsApiLogger

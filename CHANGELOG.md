@@ -1,3 +1,6 @@
+# 0.6.2
+* Fixes Zeitwerk warning.
+
 # 0.6.1
 * Fixes the loading of concern into controllers.
 

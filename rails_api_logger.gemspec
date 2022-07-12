@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = "rails_api_logger"
-  spec.version = "0.6.2"
+  spec.version = "0.6.3"
   spec.authors = ["Alessandro Rodi"]
   spec.email = ["alessandro.rodi@renuo.ch"]
 
@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/renuo/rails_api_logger"
-  spec.metadata["changelog_uri"] = "https://github.com/renuo/rails_api_logger/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "https://github.com/renuo/rails_api_logger/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

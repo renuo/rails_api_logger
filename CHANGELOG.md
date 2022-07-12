@@ -1,3 +1,6 @@
+# 0.6.3
+* Fix the CHANGELOG path in gemspec.
+
 # 0.6.2
 * Fixes Zeitwerk warning.
 

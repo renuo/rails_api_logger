@@ -19,7 +19,7 @@ class RequestLog < ActiveRecord::Base
     rescue JSON::ParserError
       body
     end
-    create(path: request.path, request_body: body, method: request.method, ip_used: 0.0.0.0, started_at: Time.current, loggable: loggable)
+    create(path: request.path, request_body: body, method: request.method, started_at: Time.current, loggable: loggable)
   end
 
   def from_response(response)

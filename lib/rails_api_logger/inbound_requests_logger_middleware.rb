@@ -16,7 +16,7 @@ class InboundRequestsLoggerMiddleware
     end
     status, headers, body = @app.call(env)
     if logging
-      remote_ip = env["action_dispatch.remote_ip"]
+      remote_ip = request.env["X-Real-IP"]
       env["INBOUND_REQUEST_LOG"].update_columns(response_body: parsed_body(body),
                                                 response_code: status,
                                                 ended_at: Time.current,

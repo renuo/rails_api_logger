@@ -19,7 +19,7 @@ class InboundRequestsLoggerMiddleware
       env["INBOUND_REQUEST_LOG"].update_columns(response_body: parsed_body(body),
                                                 response_code: status,
                                                 ended_at: Time.current,
-                                                ip_used: request.ip)
+                                                ip_used: request.remote_ip)
     end
     [status, headers, body]
   end

@@ -35,6 +35,7 @@ def database_setup
       t.text :request_body
       t.text :response_body
       t.integer :response_code
+      t.inet :ip_used
       t.timestamp :started_at
       t.timestamp :ended_at
       t.references :loggable, index: true, polymorphic: true
@@ -47,6 +48,7 @@ def database_setup
       t.text :request_body
       t.text :response_body
       t.integer :response_code
+      t.inet :ip_used
       t.timestamp :started_at
       t.timestamp :ended_at
       t.references :loggable, index: true, polymorphic: true

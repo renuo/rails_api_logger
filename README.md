@@ -85,20 +85,20 @@ If you are exposing some API you might be interested in logging the requests you
 You can do so by adding this middleware in `config/application.rb`
 
 ```ruby
-config.middleware.insert_before Rails::Rack::Logger, InboundRequestLoggerMiddleware
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware
 ``` 
 
 this will by default only log requests that have an impact in your system (POST, PUT, and PATCH calls).
 If you want to log all requests (also GET ones) use
 
 ```ruby
-config.middleware.insert_before Rails::Rack::Logger, InboundRequestLoggerMiddleware, only_state_change: false
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, only_state_change: false
 ```
 
 If you want to log only requests on a certain path, you can pass a regular expression:
 
 ```ruby
-config.middleware.insert_before Rails::Rack::Logger, InboundRequestLoggerMiddleware, path_regexp: /api/
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, path_regexp: /api/
 ```
 
 

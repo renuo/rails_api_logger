@@ -71,10 +71,14 @@ log.save!
 You can also use the provided logger class to do that in a simpler and safer manner:
 
 ```ruby
-uri = URI('http://example.com/some_path?query=string')
-http = Net::HTTP.new(uri.host, uri.port)
-request = Net::HTTP::Get.new(uri)
-response = RailsApiLogger.new.call(uri, request) { http.start { |http| http.request(request) } }
+uri = URI('https://example.com/some_path')
+request = Net::HTTP::Post.new(uri)
+request.body = { answer: 42 }.to_json
+request.content_type = 'application/json'
+
+response = RailsApiLogger.new.call(nil, request) do
+  Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(request) }
+end
 ``` 
 
 This will guarantee that the log is always persisted, even in case of errors.

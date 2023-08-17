@@ -174,6 +174,24 @@ This configuration will give you some nice views, and searches to work with the 
 end
 ```
 
+## Caveats
+
+If you log your requests inside of parent app transactions, your logs will not be persisted if
+the transaction is rolled-back. You can circumvent that by opening another database connection
+to the same (or another database if you're into that stuff) when logging.
+
+```
+# app/models/request_log.rb
+
+module TransactionEscaping
+  def self.prepended(_base)
+    connects_to database: { writing: :primary, reading: :primary }
+  end
+end
+
+RequestLog.prepend(TransactionEscaping)
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

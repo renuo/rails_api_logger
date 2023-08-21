@@ -183,13 +183,15 @@ to the same (or another database if you're into that stuff) when logging.
 ```
 # app/models/request_log.rb
 
-module TransactionEscaping
-  def self.prepended(_base)
+module RequestLogTransactionPatch
+  extend ActiveSupport::Concern
+
+  included do
     connects_to database: { writing: :primary, reading: :primary }
   end
 end
 
-RequestLog.prepend(TransactionEscaping)
+RequestLog.include(RequestLogTransactionPatch)
 ```
 
 ## Development

@@ -181,7 +181,7 @@ the transaction is rolled-back. You can circumvent that by opening another datab
 to the same (or another database if you're into that stuff) when logging.
 
 ```
-# app/models/request_log.rb
+# config/initializers/request_log_patch.rb
 
 module RequestLogTransactionPatch
   extend ActiveSupport::Concern

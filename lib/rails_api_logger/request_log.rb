@@ -6,7 +6,7 @@ class RequestLog < ActiveRecord::Base
 
   belongs_to :loggable, optional: true, polymorphic: true
 
-  scope :failed, -> { where.not(response_code: 200..299) }
+  scope :failed, -> { where(response_code: 400..599).or(where.not(ended_at: nil).where(response_code: nil)) }
 
   validates :method, presence: true
   validates :path, presence: true

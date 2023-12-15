@@ -83,6 +83,29 @@ end
 
 This will guarantee that the log is always persisted, even in case of errors.
 
+### Database Transactions Caveats
+
+If you log your outbound requests inside of parent app transactions, your logs will not be persisted if
+the transaction is rolled-back. You can circumvent that by opening another database connection
+to the same (or another database if you're into that stuff) when logging.
+
+```
+# config/initializers/outbound_request_log_patch.rb
+
+module OutboundRequestLogTransactionPatch
+  extend ActiveSupport::Concern
+
+  included do
+    connects_to database: { writing: :primary, reading: :primary }
+  end
+end
+
+OutboundRequestLog.include(OutboundRequestLogTransactionPatch)
+```
+
+another way to do the same is to start a new thread to log the request. 
+See the [linked test for an example](https://github.com/renuo/rails_api_logger/blob/main/spec/outbound_request_log_spec.rb:15)
+
 ## Log Inbound Requests
 
 If you are exposing some API you might be interested in logging the requests you receive.
@@ -105,10 +128,15 @@ If you want to log only requests on a certain path, you can pass a regular expre
 config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, path_regexp: /api/
 ```
 
+If you want to skip logging the body of certain requests, you can pass a regular expression:
+
+```ruby
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, skip_body_regexp: /api/letters/
+```
+
 
 In the implementation of your API, you can call any time `attach_inbound_request_loggable(model)`
 to attach an already persisted model to the log record.
-
 
 
 For example:
@@ -174,25 +202,6 @@ This configuration will give you some nice views, and searches to work with the 
 end
 ```
 
-## Caveats
-
-If you log your requests inside of parent app transactions, your logs will not be persisted if
-the transaction is rolled-back. You can circumvent that by opening another database connection
-to the same (or another database if you're into that stuff) when logging.
-
-```
-# config/initializers/request_log_patch.rb
-
-module RequestLogTransactionPatch
-  extend ActiveSupport::Concern
-
-  included do
-    connects_to database: { writing: :primary, reading: :primary }
-  end
-end
-
-RequestLog.include(RequestLogTransactionPatch)
-```
 
 ## Development
 

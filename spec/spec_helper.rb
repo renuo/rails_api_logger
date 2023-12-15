@@ -23,7 +23,7 @@ end
 
 def database_setup
   # ActiveRecord::Base.logger = nil
-  ActiveRecord::Base.logger = Logger.new(STDOUT)
+  ActiveRecord::Base.logger = Logger.new($stdout)
 
   # ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
 

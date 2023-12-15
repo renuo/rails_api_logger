@@ -21,6 +21,7 @@ blocks:
           - cache restore
           - bundle config set path 'vendor/bundle'
           - bundle install -j 4
+          - sem-service start postgres 14 --username=semaphore
           - cache store
       jobs:
         - name: tests

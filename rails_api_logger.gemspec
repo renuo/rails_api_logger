@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "sqlite3", "~> 1.4.0"
   spec.add_development_dependency "pg", "~> 1.5.4"
-  spec.add_development_dependency "standard", "~> 0.13.0"
+  spec.add_development_dependency "standard", "~> 1.31"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rack"

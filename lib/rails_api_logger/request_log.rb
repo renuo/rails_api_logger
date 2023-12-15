@@ -13,7 +13,7 @@ class RequestLog < ActiveRecord::Base
 
   def self.from_request(request, loggable: nil)
     request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
-    body = request_body ? request_body.dup.force_encoding("UTF-8") : nil
+    body = request_body&.dup&.force_encoding("UTF-8")
     begin
       body = JSON.parse(body) if body.present?
     rescue JSON::ParserError
@@ -24,7 +24,7 @@ class RequestLog < ActiveRecord::Base
 
   def from_response(response)
     self.response_code = response.code
-    body = response.body ? response.body.dup.force_encoding("UTF-8") : nil
+    body = response.body&.dup&.force_encoding("UTF-8")
     begin
       body = JSON.parse(body) if body.present?
     rescue JSON::ParserError

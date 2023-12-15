@@ -128,10 +128,15 @@ If you want to log only requests on a certain path, you can pass a regular expre
 config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, path_regexp: /api/
 ```
 
+If you want to skip logging the body of certain requests, you can pass a regular expression:
+
+```ruby
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, skip_body_regexp: /api/letters/
+```
+
 
 In the implementation of your API, you can call any time `attach_inbound_request_loggable(model)`
 to attach an already persisted model to the log record.
-
 
 
 For example:

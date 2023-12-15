@@ -22,41 +22,63 @@ class Book < ActiveRecord::Base
 end
 
 def database_setup
-  ActiveRecord::Base.logger = nil
-  ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+  # ActiveRecord::Base.logger = nil
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+  # ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+
+  ActiveRecord::Base.establish_connection(adapter: "postgresql", database: "postgres")
+  begin
+    ActiveRecord::Base.connection.drop_database("rails_api_logger")
+  rescue
+    nil
+  end
+  begin
+    ActiveRecord::Base.connection.create_database("rails_api_logger")
+  rescue
+    nil
+  end
+  ActiveRecord::Base.establish_connection(adapter: "postgresql", database: "rails_api_logger")
+
   ActiveRecord::Migration.verbose = false
 
   # TODO: copy-pasted from the migration template. avoid this. how? 🤷‍
 
   ActiveRecord::Schema.define do
-    create_table :inbound_request_logs do |t|
-      t.string :method
-      t.string :path
-      t.text :request_body
-      t.text :response_body
-      t.integer :response_code
-      t.timestamp :started_at
-      t.timestamp :ended_at
-      t.references :loggable, index: true, polymorphic: true
-      t.timestamps null: false
+    if !ActiveRecord::Base.connection.table_exists?(:inbound_request_logs)
+      create_table :inbound_request_logs do |t|
+        t.string :method
+        t.string :path
+        t.text :request_body
+        t.text :response_body
+        t.integer :response_code
+        t.timestamp :started_at
+        t.timestamp :ended_at
+        t.references :loggable, index: true, polymorphic: true
+        t.timestamps null: false
+      end
     end
 
-    create_table :outbound_request_logs do |t|
-      t.string :method
-      t.string :path
-      t.text :request_body
-      t.text :response_body
-      t.integer :response_code
-      t.timestamp :started_at
-      t.timestamp :ended_at
-      t.references :loggable, index: true, polymorphic: true
-      t.timestamps null: false
+    if !ActiveRecord::Base.connection.table_exists?(:outbound_request_logs)
+      create_table :outbound_request_logs do |t|
+        t.string :method
+        t.string :path
+        t.text :request_body
+        t.text :response_body
+        t.integer :response_code
+        t.timestamp :started_at
+        t.timestamp :ended_at
+        t.references :loggable, index: true, polymorphic: true
+        t.timestamps null: false
+      end
     end
 
-    create_table :books do |t|
-      t.string :title
-      t.string :author
-      t.timestamps null: false
+    if !ActiveRecord::Base.connection.table_exists?(:books)
+      create_table :books do |t|
+        t.string :title
+        t.string :author
+        t.timestamps null: false
+      end
     end
   end
 end

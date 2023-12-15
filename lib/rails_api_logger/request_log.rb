@@ -31,6 +31,7 @@ class RequestLog < ActiveRecord::Base
       body
     end
     self.response_body = body
+    self
   end
 
   def formatted_request_body

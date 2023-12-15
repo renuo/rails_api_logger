@@ -1,3 +1,7 @@
+# 0.7.0
+* Fix an issue in the middleware where the request body was not read correctly if there were encoding issues.
+* Improved documentation about outboud request logging.
+
 # 0.6.3
 * Fix the CHANGELOG path in gemspec.
 

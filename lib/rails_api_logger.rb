@@ -10,14 +10,15 @@ loader.setup
 class RailsApiLogger
   class Error < StandardError; end
 
-  def initialize(loggable = nil)
+  def initialize(loggable = nil, skip_body: false)
     @loggable = loggable
+    @skip_body = skip_body
   end
 
   def call(url, request)
     log = OutboundRequestLog.from_request(request, loggable: @loggable)
     yield.tap do |response|
-      log.from_response(response)
+      log.from_response(response, skip_body: @skip_body)
     end
   rescue => e
     log.response_body = {error: e.message}

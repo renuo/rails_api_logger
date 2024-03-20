@@ -103,8 +103,8 @@ end
 OutboundRequestLog.include(OutboundRequestLogTransactionPatch)
 ```
 
-another way to do the same is to start a new thread to log the request. 
-See the [linked test for an example](https://github.com/renuo/rails_api_logger/blob/main/spec/outbound_request_log_spec.rb:15)
+You can also log the request in a separate thread to provoke the checkout of a separate database connection.
+Have a look at [this example here](https://github.com/renuo/rails_api_logger/blob/28d4ced88fea5a5f4fd72f5a1db42ad4734eb547/spec/outbound_request_log_spec.rb#L28-L30).
 
 ## Log Inbound Requests
 

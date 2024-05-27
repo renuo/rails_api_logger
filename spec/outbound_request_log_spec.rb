@@ -5,6 +5,8 @@ RSpec.describe OutboundRequestLog do
     OutboundRequestLog.delete_all
   end
 
+  before { allow(OutboundRequestLog).to receive(:switch_tenant).and_return(nil) }
+
   it "logs a request in the database" do
     uri = URI("http://example.com/some_path?query=string")
     http = Net::HTTP.new(uri.host, uri.port)

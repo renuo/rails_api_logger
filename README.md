@@ -1,3 +1,8 @@
+# Fork information
+
+This fork aims at merging all forks of renuo/rails_api_logger, adding uuid, ip_used and request_headers to the logged information,
+and hashing passwords before saving them.
+
 # Rails API Logger
 
 The simplest way to log API requests of your Rails application in your database.
@@ -13,11 +18,14 @@ technique multiple times successfully.
 
 This gem creates two database tables to log the following information:
 
+* **uuid** a generated uuid for the log
 * **path** the path/url invoked
 * **method** the method used to invoke the API (get, post, put, etc...)
 * **request_body** what was included in the request body
+* **request_headers** what was included in the request headers
 * **response_body** what was included in the response body 
 * **response_code** the HTTP response code of the request 
+* **ip_used** the remote IP
 * **started_at** when the request started
 * **ended_at** when the request finished
 
@@ -26,7 +34,7 @@ This gem creates two database tables to log the following information:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rails_api_logger'
+gem 'rails_api_logger', github: 'Juleffel/rails_api_logger'
 ```
 
 And then execute:
@@ -134,6 +142,8 @@ If you want to skip logging the body of certain requests, you can pass a regular
 config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, skip_body_regexp: /api/letters/
 ```
 
+If you want to keep only a few headers, `keep_headers` option array allow you to select them.
+By default, only a few are saved. `nil` allow you to remove filers.
 
 In the implementation of your API, you can call any time `attach_inbound_request_loggable(model)`
 to attach an already persisted model to the log record.

@@ -1,8 +1,8 @@
 class RequestLog < ActiveRecord::Base
   self.abstract_class = true
 
-  serialize :request_body, JSON
-  serialize :response_body, JSON
+  serialize :request_body, coder: JSON
+  serialize :response_body, coder: JSON
 
   belongs_to :loggable, optional: true, polymorphic: true
 
@@ -10,16 +10,64 @@ class RequestLog < ActiveRecord::Base
 
   validates :method, presence: true
   validates :path, presence: true
+  validates :uuid, presence: true
 
-  def self.from_request(request, loggable: nil)
+  before_validation :create_uuid
+
+  def create_uuid
+    self.uuid ||= SecureRandom.uuid
+  end
+
+  def self.from_request(request, loggable: nil, keep_headers: nil)
     request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
-    body = request_body&.dup&.force_encoding("UTF-8")
+    headers_h = request&.each_header&.to_h { |k,v| [k, v.to_s] }
+    headers = headers_h&.filter { |k, v| !keep_headers || keep_headers.include?(k) }&.to_json || {}
+
+    switch_tenant(request)
+
+    body = request_body ? request_body.dup.force_encoding('UTF-8').encode('UTF-8', invalid: :replace) : nil
+
     begin
       body = JSON.parse(body) if body.present?
     rescue JSON::ParserError
       body
     end
-    create(path: request.path, request_body: body, method: request.method, started_at: Time.current, loggable: loggable)
+
+    if request.respond_to?(:params) && request.params.present?
+      if body.present? && body.is_a?(Hash)
+        body = (body || {}).merge(request.params)
+      else
+        body = request.params
+      end
+    end
+
+    create_params = {
+      path: request.path,
+      method: request.method,
+      request_body: body,
+      request_headers: headers,
+      started_at: Time.current,
+      loggable: loggable,
+    }
+    if headers["action_dispatch.request_id"]
+      create_params[:uuid] = headers["action_dispatch.request_id"]
+    end
+    if request.respond_to?(:remote_ip) && request.remote_ip.present?
+      create_params[:ip_used] = request.remote_ip
+    end
+    create(create_params)
+  end
+
+  def self.switch_tenant(request)
+    bearer_token = request&.each_header.to_h['HTTP_AUTHORIZATION']&.gsub('Bearer ', '')
+    return unless bearer_token
+
+    access_token = Doorkeeper::AccessToken.find_by(token: bearer_token)
+    resource_owner = User.find(access_token.resource_owner_id) unless access_token.expired?
+    tenant = resource_owner.current_tenant
+    tenant.switch!
+  rescue
+    Apartment::Tenant.switch! 'public'
   end
 
   def from_response(response, skip_body: false)
@@ -59,7 +107,7 @@ class RequestLog < ActiveRecord::Base
   private
 
   def manipulate_body(body)
-    body_duplicate = body&.dup&.force_encoding("UTF-8")
+    body_duplicate = body&.dup&.force_encoding("UTF-8")&.encode('UTF-8', invalid: :replace)
     begin
       body_duplicate = JSON.parse(body_duplicate) if body_duplicate.present?
     rescue JSON::ParserError

@@ -34,6 +34,8 @@ RSpec.describe InboundRequestsLoggerMiddleware do
     InboundRequestLog.delete_all
   end
 
+  before { allow(InboundRequestLog).to receive(:switch_tenant).and_return(nil) }
+
   context "when the PATH_INFO matches the path_regexp" do
     let(:path_regexp) { /\/api/ }
 
@@ -52,6 +54,8 @@ RSpec.describe InboundRequestsLoggerMiddleware do
       expect(inbound_request_log.duration).to be > 0
       expect(inbound_request_log.loggable_type).to eq("Book")
       expect(inbound_request_log.loggable_id).to be_present
+      expect(response.headers).to have_key("Request-Id")
+      expect(response.headers["Request-Id"]).to eq(inbound_request_log.uuid)
     end
 
     context "when the PATH_INFO matches the skip_body_regexp" do
@@ -75,13 +79,13 @@ RSpec.describe InboundRequestsLoggerMiddleware do
         InboundRequestsLoggerMiddleware.new(MyApp.new(response_body: "iPhone\xAE"), path_regexp: path_regexp)
       end
 
-      it "logs a request in the database without body" do
+      it "logs a request in the database replacing invalid characters" do
         expect(response.status).to eq(200)
         expect(response.body).to eq("iPhone\xAE")
         expect(InboundRequestLog.count).to eq(1)
         inbound_request_log = InboundRequestLog.first
         expect(inbound_request_log.response_code).to eq(200)
-        expect(inbound_request_log.response_body).to be_nil
+        expect(inbound_request_log.response_body).to eq("iPhone�")
       end
     end
   end

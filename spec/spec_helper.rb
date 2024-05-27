@@ -47,11 +47,15 @@ def database_setup
   ActiveRecord::Schema.define do
     if !ActiveRecord::Base.connection.table_exists?(:inbound_request_logs)
       create_table :inbound_request_logs do |t|
+        t.text :uuid
         t.string :method
         t.string :path
         t.text :request_body
+        t.text :request_headers
         t.text :response_body
+        t.text :response_headers
         t.integer :response_code
+        t.inet :ip_used
         t.timestamp :started_at
         t.timestamp :ended_at
         t.references :loggable, index: true, polymorphic: true
@@ -61,11 +65,15 @@ def database_setup
 
     if !ActiveRecord::Base.connection.table_exists?(:outbound_request_logs)
       create_table :outbound_request_logs do |t|
+        t.text :uuid
         t.string :method
         t.string :path
         t.text :request_body
+        t.text :request_headers
         t.text :response_body
+        t.text :response_headers
         t.integer :response_code
+        t.inet :ip_used
         t.timestamp :started_at
         t.timestamp :ended_at
         t.references :loggable, index: true, polymorphic: true

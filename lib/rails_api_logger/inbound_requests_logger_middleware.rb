@@ -44,9 +44,7 @@ class InboundRequestsLoggerMiddleware
   end
 
   def log?(env, request)
-    require "byebug"
-    byebug
-    (env["PATH_INFO"] =~ path_regexp || request.subdomain =~ subdomain_regexp) && (!only_state_change || request_with_state_change?(request))
+    (env["PATH_INFO"] =~ path_regexp && request.subdomain =~ subdomain_regexp) && (!only_state_change || request_with_state_change?(request))
   end
 
   def to_utf8(body)

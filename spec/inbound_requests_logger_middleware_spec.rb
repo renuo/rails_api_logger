@@ -46,7 +46,7 @@ RSpec.describe InboundRequestsLoggerMiddleware do
       inbound_request_log = InboundRequestLog.first
       expect(inbound_request_log.method).to eq("POST")
       expect(inbound_request_log.path).to eq("/api/v1/books")
-      expect(inbound_request_log.request_body).to eq("")
+      expect(inbound_request_log.request_body).to eq(nil)
       expect(inbound_request_log.response_code).to eq(200)
       expect(inbound_request_log.response_body).to eq("Hello World")
       expect(inbound_request_log.started_at).to be_present
@@ -68,7 +68,7 @@ RSpec.describe InboundRequestsLoggerMiddleware do
         inbound_request_log = InboundRequestLog.first
         expect(inbound_request_log.method).to eq("POST")
         expect(inbound_request_log.path).to eq("/api/v1/books")
-        expect(inbound_request_log.request_body).to eq("")
+        expect(inbound_request_log.request_body).to eq(nil)
         expect(inbound_request_log.response_code).to eq(200)
         expect(inbound_request_log.response_body).to be_nil
       end

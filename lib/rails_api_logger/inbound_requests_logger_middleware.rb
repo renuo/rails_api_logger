@@ -1,14 +1,15 @@
 class InboundRequestsLoggerMiddleware
-  attr_accessor :only_state_change, :path_regexp, :skip_body_regexp, :keep_headers
+  attr_accessor :only_state_change, :path_regexp, :skip_body_regexp, :keep_headers, :subdomain_regexp
 
   DEFAULT_HEADERS = %w[HTTP_USER_AGENT HTTP_REFERER HTTP_ACCEPT HTTP_ACCEPT_LANGUAGE HTTP_ACCEPT_ENCODING].freeze
 
-  def initialize(app, only_state_change: true, path_regexp: /.*/, skip_body_regexp: nil, keep_headers: DEFAULT_HEADERS)
+  def initialize(app, only_state_change: true, path_regexp: /.*/, skip_body_regexp: nil, keep_headers: DEFAULT_HEADERS, subdomain:  /.*/)
     @app = app
     self.only_state_change = only_state_change
     self.path_regexp = path_regexp
     self.skip_body_regexp = skip_body_regexp
     self.keep_headers = keep_headers
+    self.subdomain = subdomain
   end
 
   def call(env)
@@ -16,7 +17,7 @@ class InboundRequestsLoggerMiddleware
     logging = log?(env, request)
     if logging
       env["INBOUND_REQUEST_LOG"] = InboundRequestLog.from_request(request, keep_headers: keep_headers)
-      request.body.rewind
+      request.body&.rewind
     end
     status, headers, body = @app.call(env)
     if logging
@@ -43,7 +44,7 @@ class InboundRequestsLoggerMiddleware
   end
 
   def log?(env, request)
-    env["PATH_INFO"] =~ path_regexp && (!only_state_change || request_with_state_change?(request))
+    (env["PATH_INFO"] =~ path_regexp || request.subdomain =~ subdomain) && (!only_state_change || request_with_state_change?(request))
   end
 
   def to_utf8(body)

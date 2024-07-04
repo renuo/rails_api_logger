@@ -33,11 +33,11 @@ class RequestLog < ActiveRecord::Base
       body
     end
 
-    if request.respond_to?(:params) && request.params.present?
+    if request.respond_to?(:query_parameters) && request.query_parameters.present?
       if body.present? && body.is_a?(Hash)
-        body = (body || {}).merge(request.params)
+        body = (body || {}).merge(request.query_parameters)
       else
-        body = request.params
+        body = request.query_parameters
       end
     end
 

@@ -1,3 +1,6 @@
+# 0.8.1
+* Fix Rails 7.1 warnings.
+
 # 0.8.0
 * Add option skip_body to skip the body for request responses. Use this option when you don't want to persist the response body. `[Skipped]` will be persisted instead. This is not a breaking change.
 

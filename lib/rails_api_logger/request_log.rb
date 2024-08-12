@@ -1,8 +1,8 @@
 class RequestLog < ActiveRecord::Base
   self.abstract_class = true
 
-  serialize :request_body, JSON
-  serialize :response_body, JSON
+  serialize :request_body, coder: JSON
+  serialize :response_body, coder: JSON
 
   belongs_to :loggable, optional: true, polymorphic: true
 

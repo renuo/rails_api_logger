@@ -42,10 +42,10 @@ class InboundRequestsLoggerMiddleware
   def parsed_body(body)
     return unless body.present?
 
-    if body.respond_to?(:body)
+    if body.respond_to?(:to_ary)
+      JSON.parse(body.to_ary[0])
+    elsif body.respond_to?(:body)
       JSON.parse(body.body)
-    elsif body.respond_to?(:[])
-      JSON.parse(body[0])
     else
       body
     end

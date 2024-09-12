@@ -1,8 +1,8 @@
-# 0.9.0
+# 0.9.0 - Breaking changes ⚠️
 * Add option skip_request_body to skip the request body. Use this option when you don't want to persist the request body. `[Skipped]` will be persisted instead.
 * Add option skip_request_body_regexp to skip logging the body of requests matching a regexp.
-* Renamed the option skip_body into skip_response_body. This is a breaking change!
-* Renamed the option skip_body_regexp into skip_response_body_regexp. This is a breaking change!
+* Renamed the option skip_body into skip_response_body. **This is a breaking change!**
+* Renamed the option skip_body_regexp into skip_response_body_regexp. **This is a breaking change!**
 
 # 0.8.1
 * Fix Rails 7.1 warnings.

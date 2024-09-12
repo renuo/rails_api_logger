@@ -26,19 +26,20 @@ RSpec.describe RequestLog do
     let(:request) { Net::HTTP::Get.new(uri) }
     let(:response) { http.start { |http| http.request(request) } }
 
-    before { RailsApiLogger.new(skip_body: skip_body).call(uri, request) { response } }
+    before { RailsApiLogger.new(skip_response_body: skip_response_body).call(uri, request) { response } }
 
-    context "when skip_body is set to false" do
-      let(:skip_body) { false }
+    context "when skip_response_body is set to false" do
+      let(:skip_response_body) { false }
 
       it "sets the response_body to the original request's response body" do
         log = OutboundRequestLog.last
         expect(log.response_body).to eq(response.body)
+        expect(log.response_body).to be_present
       end
     end
 
-    context "when skip_body is set to true" do
-      let(:skip_body) { true }
+    context "when skip_response_body is set to true" do
+      let(:skip_response_body) { true }
 
       it "sets the response_body to [Skipped]" do
         log = OutboundRequestLog.last

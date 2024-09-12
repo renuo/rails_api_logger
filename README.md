@@ -128,10 +128,12 @@ If you want to log only requests on a certain path, you can pass a regular expre
 config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, path_regexp: /api/
 ```
 
-If you want to skip logging the body of certain requests, you can pass a regular expression:
+If you want to skip logging the response or request body of certain requests, you can pass a regular expression:
 
 ```ruby
-config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware, skip_body_regexp: /api/letters/
+config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware,
+                                skip_request_body_regexp: /api/books/,
+                                skip_response_body_regexp: /api/letters/
 ```
 
 

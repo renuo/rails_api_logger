@@ -1,24 +1,32 @@
 class InboundRequestsLoggerMiddleware
-  attr_accessor :only_state_change, :path_regexp, :skip_body_regexp
+  attr_accessor :only_state_change, :path_regexp, :skip_request_body_regexp, :skip_response_body_regexp
 
-  def initialize(app, only_state_change: true, path_regexp: /.*/, skip_body_regexp: nil)
+  def initialize(app, only_state_change: true,
+    path_regexp: /.*/,
+    skip_request_body_regexp: nil,
+    skip_response_body_regexp: nil)
     @app = app
     self.only_state_change = only_state_change
     self.path_regexp = path_regexp
-    self.skip_body_regexp = skip_body_regexp
+    self.skip_request_body_regexp = skip_request_body_regexp
+    self.skip_response_body_regexp = skip_response_body_regexp
   end
 
   def call(env)
     request = ActionDispatch::Request.new(env)
     logging = log?(env, request)
     if logging
-      env["INBOUND_REQUEST_LOG"] = InboundRequestLog.from_request(request)
+      env["INBOUND_REQUEST_LOG"] = InboundRequestLog.from_request(request, skip_request_body: skip_request_body?(env))
       request.body.rewind
     end
     status, headers, body = @app.call(env)
     if logging
       updates = {response_code: status, ended_at: Time.current}
-      updates[:response_body] = parsed_body(body) if log_response_body?(env)
+      updates[:response_body] = if skip_response_body?(env)
+        "[Skipped]"
+      else
+        parsed_body(body)
+      end
       # this usually works. let's be optimistic.
       begin
         env["INBOUND_REQUEST_LOG"].update_columns(updates)
@@ -31,8 +39,12 @@ class InboundRequestsLoggerMiddleware
 
   private
 
-  def log_response_body?(env)
-    skip_body_regexp.nil? || env["PATH_INFO"] !~ skip_body_regexp
+  def skip_request_body?(env)
+    skip_request_body_regexp && env["PATH_INFO"] =~ skip_request_body_regexp
+  end
+
+  def skip_response_body?(env)
+    skip_response_body_regexp && env["PATH_INFO"] =~ skip_response_body_regexp
   end
 
   def log?(env, request)

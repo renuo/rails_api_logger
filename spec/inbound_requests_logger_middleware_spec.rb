@@ -23,9 +23,13 @@ class MyApp
 end
 
 RSpec.describe InboundRequestsLoggerMiddleware do
-  let(:skip_body_regexp) { nil }
+  let(:skip_request_body_regexp) { nil }
+  let(:skip_response_body_regexp) { nil }
   let(:app) do
-    InboundRequestsLoggerMiddleware.new(MyApp.new, path_regexp: path_regexp, skip_body_regexp: skip_body_regexp)
+    InboundRequestsLoggerMiddleware.new(MyApp.new,
+      path_regexp: path_regexp,
+      skip_request_body_regexp: skip_request_body_regexp,
+      skip_response_body_regexp: skip_response_body_regexp)
   end
   let(:request) { Rack::MockRequest.new(app) }
   let(:response) { request.post("/api/v1/books") }
@@ -54,10 +58,26 @@ RSpec.describe InboundRequestsLoggerMiddleware do
       expect(inbound_request_log.loggable_id).to be_present
     end
 
-    context "when the PATH_INFO matches the skip_body_regexp" do
-      let(:skip_body_regexp) { /books/ }
+    context "when the PATH_INFO matches the skip_request_body_regexp" do
+      let(:skip_request_body_regexp) { /books/ }
 
-      it "logs a request in the database but without a body" do
+      it "logs a request in the database but without a request body" do
+        expect(response.status).to eq(200)
+        expect(response.body).to eq("Hello World")
+        expect(InboundRequestLog.count).to eq(1)
+        inbound_request_log = InboundRequestLog.first
+        expect(inbound_request_log.method).to eq("POST")
+        expect(inbound_request_log.path).to eq("/api/v1/books")
+        expect(inbound_request_log.request_body).to eq("[Skipped]")
+        expect(inbound_request_log.response_code).to eq(200)
+        expect(inbound_request_log.response_body).to eq("Hello World")
+      end
+    end
+
+    context "when the PATH_INFO matches the skip_response_body_regexp" do
+      let(:skip_response_body_regexp) { /books/ }
+
+      it "logs a request in the database but without a response body" do
         expect(response.status).to eq(200)
         expect(response.body).to eq("Hello World")
         expect(InboundRequestLog.count).to eq(1)
@@ -66,7 +86,7 @@ RSpec.describe InboundRequestsLoggerMiddleware do
         expect(inbound_request_log.path).to eq("/api/v1/books")
         expect(inbound_request_log.request_body).to eq("")
         expect(inbound_request_log.response_code).to eq(200)
-        expect(inbound_request_log.response_body).to be_nil
+        expect(inbound_request_log.response_body).to eq("[Skipped]")
       end
     end
 

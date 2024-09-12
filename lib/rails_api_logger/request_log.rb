@@ -11,20 +11,24 @@ class RequestLog < ActiveRecord::Base
   validates :method, presence: true
   validates :path, presence: true
 
-  def self.from_request(request, loggable: nil)
-    request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
-    body = request_body&.dup&.force_encoding("UTF-8")
-    begin
-      body = JSON.parse(body) if body.present?
-    rescue JSON::ParserError
-      body
+  def self.from_request(request, loggable: nil, skip_request_body: false)
+    if skip_request_body
+      body = "[Skipped]"
+    else
+      request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
+      body = request_body&.dup&.force_encoding("UTF-8")
+      begin
+        body = JSON.parse(body) if body.present?
+      rescue JSON::ParserError
+        body
+      end
     end
     create(path: request.path, request_body: body, method: request.method, started_at: Time.current, loggable: loggable)
   end
 
-  def from_response(response, skip_body: false)
+  def from_response(response, skip_response_body: false)
     self.response_code = response.code
-    self.response_body = skip_body ? "[Skipped]" : manipulate_body(response.body)
+    self.response_body = skip_response_body ? "[Skipped]" : manipulate_body(response.body)
     self
   end
 
@@ -37,7 +41,9 @@ class RequestLog < ActiveRecord::Base
   end
 
   def formatted_body(body)
-    if body.is_a?(Hash)
+    if body.is_a?(String) && body.blank?
+      ""
+    elsif body.is_a?(Hash)
       JSON.pretty_generate(body)
     else
       xml = Nokogiri::XML(body)

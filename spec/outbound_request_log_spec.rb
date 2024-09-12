@@ -5,15 +5,45 @@ RSpec.describe OutboundRequestLog do
     OutboundRequestLog.delete_all
   end
 
-  it "logs a request in the database" do
-    uri = URI("http://example.com/some_path?query=string")
-    http = Net::HTTP.new(uri.host, uri.port)
-    request = Net::HTTP::Get.new(uri)
-    RailsApiLogger.new.call(uri, request) { http.start { |http| http.request(request) } }
-    expect(OutboundRequestLog.count).to eq(1)
-    log = OutboundRequestLog.last
-    expect(log.started_at).to be_present
-    expect(log.ended_at).to be_present
+  describe "logging of a request" do
+    let(:skip_request_body) { false }
+    let(:skip_response_body) { false }
+
+    before do
+      uri = URI("https://httpbin.org/anything?query=string")
+      http = Net::HTTP.new(uri.host, uri.port)
+      request = Net::HTTP::Post.new(uri)
+      request.body = {"my" => {"request" => "body"}}.to_json
+      RailsApiLogger.new(skip_request_body: skip_request_body, skip_response_body: skip_response_body)
+        .call(uri, request) { http.start { |http| http.request(request) } }
+    end
+
+    it "logs all information" do
+      expect(OutboundRequestLog.count).to eq(1)
+      log = OutboundRequestLog.last
+      expect(log.started_at).to be_present
+      expect(log.ended_at).to be_present
+      expect(log.request_body).to be_present
+      expect(log.response_body).to be_present
+    end
+
+    describe "if the skip_request_body option is set" do
+      let(:skip_request_body) { true }
+
+      it "does not log the request body" do
+        log = OutboundRequestLog.last
+        expect(log.request_body).to eq("[Skipped]")
+      end
+    end
+
+    describe "if the skip_response_body option is set" do
+      let(:skip_response_body) { true }
+
+      it "does not log the response body" do
+        log = OutboundRequestLog.last
+        expect(log.response_body).to eq("[Skipped]")
+      end
+    end
   end
 
   describe "if the request fails" do
@@ -42,14 +72,13 @@ RSpec.describe OutboundRequestLog do
   describe "#formatted_request_body" do
     it "renders the request body in a nice format" do
       outbound_request_log = OutboundRequestLog.new(request_body: {"my" => {"request" => "body"}})
-      puts outbound_request_log.formatted_request_body
       expect { outbound_request_log.formatted_request_body }.not_to raise_error
       outbound_request_log.request_body = "simple text"
-      puts outbound_request_log.formatted_request_body
       expect { outbound_request_log.formatted_request_body }.not_to raise_error
       outbound_request_log.request_body = "<i><a>Hello</a><b>From</b><c>XML</c></i>"
-      puts outbound_request_log.formatted_request_body
       expect { outbound_request_log.formatted_request_body }.not_to raise_error
+      outbound_request_log.request_body = ""
+      expect(outbound_request_log.formatted_request_body).to eq("")
     end
   end
 

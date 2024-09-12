@@ -3,6 +3,7 @@
 * Add option skip_request_body_regexp to skip logging the body of requests matching a regexp.
 * Renamed the option skip_body into skip_response_body. **This is a breaking change!**
 * Renamed the option skip_body_regexp into skip_response_body_regexp. **This is a breaking change!**
+* When skipping a request or response body, it will write `[Skipped]` **This is a breaking change!**
 
 # 0.8.1
 * Fix Rails 7.1 warnings.

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dummy</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" async="true" defer="true">
+  <%= javascript_importmap_tags %>
+</head>
+
+<body>
+<header>
+  <nav>
+    <%=link_to t('locales.german'), root_path(locale: :de) %>
+    <%=link_to t('locales.english'), root_path(locale: :en) %>
+    <%=link_to t('locales.italian'), root_path(locale: :it) %>
+  </nav>
+</header>
+<main>
+  <%= yield %>
+</main>
+</body>
+</html>

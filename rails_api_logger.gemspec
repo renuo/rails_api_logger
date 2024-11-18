@@ -1,6 +1,8 @@
+require_relative "lib/rails_api_logger/version"
+
 Gem::Specification.new do |spec|
   spec.name = "rails_api_logger"
-  spec.version = "0.9.0"
+  spec.version = RailsApiLogger::VERSION
   spec.authors = ["Alessandro Rodi"]
   spec.email = ["alessandro.rodi@renuo.ch"]
 
@@ -23,9 +25,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "railties", ">= 4.1.0"
-  spec.add_dependency "activerecord", ">= 4.1.0"
-  spec.add_dependency "actionpack", ">= 4.1.0"
+  spec.add_dependency "rails", ">= 6.0.0"
   spec.add_dependency "nokogiri"
   spec.add_dependency "zeitwerk", ">= 2.0.0"
 
@@ -34,5 +34,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "standard", "~> 1.31"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "rspec-rails", "~> 7.1.0"
   spec.add_development_dependency "rack"
 end

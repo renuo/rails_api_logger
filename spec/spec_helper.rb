@@ -1,6 +1,10 @@
+ENV["RAILS_ENV"] = "test"
+ENV["RACK_ENV"] = "test"
+
 require "bundler/setup"
 require "net/http"
 require "rails_api_logger"
+require_relative "../spec/dummy/config/environment"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

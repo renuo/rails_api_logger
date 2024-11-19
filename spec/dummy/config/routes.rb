@@ -4,6 +4,6 @@ Rails.application.routes.draw do
   root to: "home#index"
 
   namespace :api do
-    resources :books, only: [:index, :create]
+    resources :books, only: [:index, :create, :update]
   end
 end

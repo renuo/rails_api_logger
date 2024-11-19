@@ -1,8 +1,8 @@
 require "spec_helper"
 
-RSpec.describe RequestLog do
+RSpec.describe RailsApiLogger::RequestLog do
   describe ".failed" do
-    [OutboundRequestLog, InboundRequestLog].each do |klass|
+    [RailsApiLogger::OutboundRequestLog, RailsApiLogger::InboundRequestLog].each do |klass|
       it "returns only failed requests for #{klass}" do
         klass.create!(path: "/ok", method: "GET", response_code: 200)
         klass.create!(path: "/redirecting", method: "GET", response_code: 308)
@@ -26,13 +26,13 @@ RSpec.describe RequestLog do
     let(:request) { Net::HTTP::Get.new(uri) }
     let(:response) { http.start { |http| http.request(request) } }
 
-    before { RailsApiLogger.new(skip_response_body: skip_response_body).call(uri, request) { response } }
+    before { RailsApiLogger::Logger.new(skip_response_body: skip_response_body).call(uri, request) { response } }
 
     context "when skip_response_body is set to false" do
       let(:skip_response_body) { false }
 
       it "sets the response_body to the original request's response body" do
-        log = OutboundRequestLog.last
+        log = RailsApiLogger::OutboundRequestLog.last
         expect(log.response_body).to eq(response.body)
         expect(log.response_body).to be_present
       end
@@ -42,7 +42,7 @@ RSpec.describe RequestLog do
       let(:skip_response_body) { true }
 
       it "sets the response_body to [Skipped]" do
-        log = OutboundRequestLog.last
+        log = RailsApiLogger::OutboundRequestLog.last
         expect(log.response_body).to eq("[Skipped]")
       end
     end

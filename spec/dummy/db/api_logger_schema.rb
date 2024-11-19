@@ -17,4 +17,34 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_205347) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "inbound_request_logs", force: :cascade do |t|
+    t.string "method"
+    t.string "path"
+    t.text "request_body"
+    t.text "response_body"
+    t.integer "response_code"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.string "loggable_type"
+    t.integer "loggable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["loggable_type", "loggable_id"], name: "index_inbound_request_logs_on_loggable"
+  end
+
+  create_table "outbound_request_logs", force: :cascade do |t|
+    t.string "method"
+    t.string "path"
+    t.text "request_body"
+    t.text "response_body"
+    t.integer "response_code"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.string "loggable_type"
+    t.integer "loggable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["loggable_type", "loggable_id"], name: "index_outbound_request_logs_on_loggable"
+  end
 end

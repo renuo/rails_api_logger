@@ -11,7 +11,7 @@ class MyApp
 
   def call(env)
     @env = env
-    book = Book.create!
+    book = Book.create!(title: "My Book", author: "John Doe")
     attach_inbound_request_loggable(book)
 
     [200, {}, @response_body]
@@ -22,20 +22,22 @@ class MyApp
   end
 end
 
-RSpec.describe InboundRequestsLoggerMiddleware do
+RSpec.describe RailsApiLogger::Middleware do
+  let(:input) { {"book" => {"title" => "Harry Potter", "author" => "J.K. Rowling"}} }
+
   let(:skip_request_body_regexp) { nil }
   let(:skip_response_body_regexp) { nil }
   let(:app) do
-    InboundRequestsLoggerMiddleware.new(MyApp.new,
+    described_class.new(MyApp.new,
       path_regexp: path_regexp,
       skip_request_body_regexp: skip_request_body_regexp,
       skip_response_body_regexp: skip_response_body_regexp)
   end
   let(:request) { Rack::MockRequest.new(app) }
-  let(:response) { request.post("/api/v1/books") }
+  let(:response) { request.post("/api/v1/books", {input: input.to_json}) }
 
   before do
-    InboundRequestLog.delete_all
+    RailsApiLogger::InboundRequestLog.delete_all
   end
 
   context "when the PATH_INFO matches the path_regexp" do
@@ -44,11 +46,11 @@ RSpec.describe InboundRequestsLoggerMiddleware do
     it "logs a request in the database" do
       expect(response.status).to eq(200)
       expect(response.body).to eq("Hello World")
-      expect(InboundRequestLog.count).to eq(1)
-      inbound_request_log = InboundRequestLog.first
+      expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
+      inbound_request_log = RailsApiLogger::InboundRequestLog.first
       expect(inbound_request_log.method).to eq("POST")
       expect(inbound_request_log.path).to eq("/api/v1/books")
-      expect(inbound_request_log.request_body).to eq("")
+      expect(inbound_request_log.request_body).to eq(input)
       expect(inbound_request_log.response_code).to eq(200)
       expect(inbound_request_log.response_body).to eq("Hello World")
       expect(inbound_request_log.started_at).to be_present
@@ -64,8 +66,8 @@ RSpec.describe InboundRequestsLoggerMiddleware do
       it "logs a request in the database but without a request body" do
         expect(response.status).to eq(200)
         expect(response.body).to eq("Hello World")
-        expect(InboundRequestLog.count).to eq(1)
-        inbound_request_log = InboundRequestLog.first
+        expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
+        inbound_request_log = RailsApiLogger::InboundRequestLog.first
         expect(inbound_request_log.method).to eq("POST")
         expect(inbound_request_log.path).to eq("/api/v1/books")
         expect(inbound_request_log.request_body).to eq("[Skipped]")
@@ -80,11 +82,11 @@ RSpec.describe InboundRequestsLoggerMiddleware do
       it "logs a request in the database but without a response body" do
         expect(response.status).to eq(200)
         expect(response.body).to eq("Hello World")
-        expect(InboundRequestLog.count).to eq(1)
-        inbound_request_log = InboundRequestLog.first
+        expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
+        inbound_request_log = RailsApiLogger::InboundRequestLog.first
         expect(inbound_request_log.method).to eq("POST")
         expect(inbound_request_log.path).to eq("/api/v1/books")
-        expect(inbound_request_log.request_body).to eq("")
+        expect(inbound_request_log.request_body).to eq(input)
         expect(inbound_request_log.response_code).to eq(200)
         expect(inbound_request_log.response_body).to eq("[Skipped]")
       end
@@ -92,14 +94,14 @@ RSpec.describe InboundRequestsLoggerMiddleware do
 
     context "when the response body contains invalid UTF-8" do
       let(:app) do
-        InboundRequestsLoggerMiddleware.new(MyApp.new(response_body: "iPhone\xAE"), path_regexp: path_regexp)
+        RailsApiLogger::Middleware.new(MyApp.new(response_body: "iPhone\xAE"), path_regexp: path_regexp)
       end
 
       it "logs a request in the database without body" do
         expect(response.status).to eq(200)
         expect(response.body).to eq("iPhone\xAE")
-        expect(InboundRequestLog.count).to eq(1)
-        inbound_request_log = InboundRequestLog.first
+        expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
+        inbound_request_log = RailsApiLogger::InboundRequestLog.first
         expect(inbound_request_log.response_code).to eq(200)
         expect(inbound_request_log.response_body).to be_nil
       end
@@ -112,7 +114,7 @@ RSpec.describe InboundRequestsLoggerMiddleware do
     it "does not log the request" do
       expect(response.status).to eq(200)
       expect(response.body).to eq("Hello World")
-      expect(InboundRequestLog.count).to eq(0)
+      expect(RailsApiLogger::InboundRequestLog.count).to eq(0)
     end
   end
 end

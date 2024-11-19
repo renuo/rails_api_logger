@@ -7,7 +7,6 @@ require "rails/all"
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
-require "rails_api_logger"
 
 module Dummy
   class Application < Rails::Application
@@ -26,6 +25,6 @@ module Dummy
     config.i18n.default_locale = :en
     config.i18n.fallbacks = true
 
-    config.middleware.insert_before Rails::Rack::Logger, InboundRequestsLoggerMiddleware
+    config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware
   end
 end

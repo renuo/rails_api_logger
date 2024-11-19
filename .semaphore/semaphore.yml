@@ -21,12 +21,51 @@ blocks:
           - cache restore
           - bundle config set path 'vendor/bundle'
           - bundle install -j 4
-          - sem-service start postgres 14 --username=semaphore
+
           - cache store
       jobs:
-        - name: tests
+        - name: linter
           commands:
             - bundle exec standardrb
+        - name: tests sqlite separate db
+          env_vars:
+            - name: TARGET_DB
+              value: sqlite
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - bundle exec rspec
+        - name: tests postgres separate db
+          env_vars:
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:schema:load
+            - bundle exec rspec
+        - name: tests sqlite same db
+          env_vars:
+            - name: SAME_DB
+              value: "true"
+            - name: TARGET_DB
+              value: sqlite
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - bundle exec rspec
+        - name: tests postgres same db
+          env_vars:
+            - name: SAME_DB
+              value: "true"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:schema:load
             - bundle exec rspec
 promotions:
   - name: main

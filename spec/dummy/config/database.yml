@@ -1,16 +1,43 @@
+<% def database_name_from(name); ENV["TARGET_DB"]=="sqlite" ? "db/#{name}.sqlite3" : name; end %>
+
+<% if ENV["TARGET_DB"] == "mysql" %>
+default: &default
+  adapter: mysql2
+  username: root
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: "127.0.0.1"
+  port: 3306
+
+<% elsif ENV["TARGET_DB"] == "postgres" %>
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  username: postgres
+  pool: 5
+  host: localhost
+  gssencmode: disable # https://github.com/ged/ruby-pg/issues/311
+
+<% else %>
 default: &default
   adapter: sqlite3
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 50 } %>
+  retries: 100
+
+<% end %>
 
 development:
   <<: *default
-  database: db/development.sqlite3
+  database: <%= database_name_from("development") %>
+  api_logger:
+    <<: *default
+    database: <%= database_name_from("development_api_logger") %>
+    migrations_paths: db/api_logger_migrate
 
 test:
-  <<: *default
-  database: db/test.sqlite3
-
-production:
-  <<: *default
-  database: db/production.sqlite3
+  primary:
+    <<: *default
+    database: <%= database_name_from("test") %>
+  api_logger:
+    <<: *default
+    database: <%= database_name_from("test_api_logger") %>
+    migrations_paths: db/api_logger_migrate

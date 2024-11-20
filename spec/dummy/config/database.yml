@@ -1,4 +1,4 @@
-<% def database_name_from(name); ENV["TARGET_DB"]=="sqlite" ? "db/#{name}.sqlite3" : name; end %>
+<% def database_name_from(name); ENV["TARGET_DB"].nil? ? "db/#{name}.sqlite3" : name; end %>
 
 <% if ENV["TARGET_DB"] == "mysql" %>
 default: &default
@@ -30,7 +30,11 @@ development:
   database: <%= database_name_from("development") %>
   api_logger:
     <<: *default
+    <% if ENV["SAME_TARGET"] == "true" %>
+    database: <%= database_name_from("development") %>
+    <% else %>
     database: <%= database_name_from("development_api_logger") %>
+    <% end %>
     migrations_paths: db/api_logger_migrate
 
 test:
@@ -39,5 +43,9 @@ test:
     database: <%= database_name_from("test") %>
   api_logger:
     <<: *default
+    <% if ENV["SAME_TARGET"] == "true" %>
+    database: <%= database_name_from("test") %>
+    <% else %>
     database: <%= database_name_from("test_api_logger") %>
+    <% end %>
     migrations_paths: db/api_logger_migrate

@@ -67,6 +67,18 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:schema:load
             - bundle exec rspec
+        - name: tests postgres same target
+          env_vars:
+            - name: SAME_TARGET
+              value: "true"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:schema:load
+            - bundle exec rspec
 promotions:
   - name: main
     pipeline_file: main-deploy.yml

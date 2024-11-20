@@ -85,9 +85,10 @@ This will guarantee that the log is always persisted, even in case of errors.
 
 ### Database Transactions Caveats
 
-If you log your outbound requests inside of parent app transactions, your logs will not be persisted if
-the transaction is rolled-back. You can circumvent that by opening another database connection
-to the same (or another database if you're into that stuff) when logging.
+If you log your outbound requests inside of parent app transactions (which you probably shouldn't),
+your logs will not be persisted if the transaction is rolled-back.
+You can circumvent that by opening another database connection
+to the same (or another database) when logging.
 
 ```
 # config/initializers/outbound_request_log_patch.rb

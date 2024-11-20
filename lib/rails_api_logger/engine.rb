@@ -17,5 +17,9 @@ module RailsApiLogger
     ActiveSupport.on_load(:action_controller) do
       include InboundRequestsLogger
     end
+
+    ActiveSupport.on_load(:active_record) do
+      include RailsApiLogger::Loggable
+    end
   end
 end

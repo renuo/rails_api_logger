@@ -8,6 +8,8 @@ This version contains many breaking changes. Consider this when upgrading:
 * Specify a database called `api_logger`. [Check here](spec/dummy/config/database.yml) for an example.
 * `InboundRequestLog` has been renamed to `RailsApiLogger::InboundRequestLog`. Table name did not change.
 * `OutboundRequestLog` has been renamed to `RailsApiLogger::OutboundRequestLog`. Table name did not change.
+* If you had `has_many :inbound_request_logs` defined, this will break. There's
+  now [three methods](app/models/rails_api_logger/loggable.rb) you can use on your model.
 * `InboundRequestsLoggerMiddleware` has been renamed to `RailsApiLogger::Middleware`
 * Add the following line into `production.rb`:
   `config.rails_api_logger.connects_to = { database: { writing: :api_logger } }` if you want to point to a new database.

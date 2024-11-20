@@ -55,7 +55,6 @@ and [configure a new database](spec/dummy/config/database.yml) accordingly.
 
 If you skip this step, rails_api_logger will use your primary database.
 
-
 ## Log Outbound Requests
 
 Given an outbound request in the following format:
@@ -154,10 +153,12 @@ end
 in the User model you can define:
 
 ```ruby
-has_many :inbound_request_logs, inverse_of: :loggable, dependent: :destroy, as: :loggable
+has_many_inbound_request_logs
 ```
 
-to be able to access the logs attached to the model.
+to be able to access the inbound logs attached to the model.
+
+You also have `has_many_outbound_request_logs` and `has_many_request_logs` that includes both.
 
 ## RailsAdmin integration
 

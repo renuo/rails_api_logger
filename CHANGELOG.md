@@ -5,17 +5,28 @@
 This version contains many breaking changes. Consider this when upgrading:
 
 * Replace calls to `RailsApiLogger.new` with `RailsApiLogger::Logger.new`. More in general the logger has been renamed.
-* Specify a database called `api_logger`. [Check here](spec/dummy/config/database.yml) for an example.
 * `InboundRequestLog` has been renamed to `RailsApiLogger::InboundRequestLog`. Table name did not change.
 * `OutboundRequestLog` has been renamed to `RailsApiLogger::OutboundRequestLog`. Table name did not change.
-* If you had `has_many :inbound_request_logs` defined, this will break. There's
+* If you had `has_many :inbound_request_logs` or `has_many :outbound_request_logs` defined, this will break. There's
   now [three methods](app/models/rails_api_logger/loggable.rb) you can use on your model.
 * `InboundRequestsLoggerMiddleware` has been renamed to `RailsApiLogger::Middleware`
+
+> Do the changes above and then continue with the following steps if you want to connect rails_api_logger to a different
+database:
+
+* Specify a database called `api_logger`. [Check here](spec/dummy/config/database.yml) for an example.
+* Check that everything still works (also in production!) with the new configuration.
+* Add the migrations in the right folder to create again the necessary tables. Run the migrations that will generate a
+  new schema file.
+* Release and do the same in production. Adapt your build/release steps if you need.
+
 * Add the following line into `production.rb`:
   `config.rails_api_logger.connects_to = { database: { writing: :api_logger } }` if you want to point to a new database.
-  Don't do it to keep the current behavior.
 
-* List of changes in this version:
+> If you are not on SQLite you can point also `api_logger` database to the current database you have, so you benefit from
+isolated transactions but don't need to create a new database or migrate data.
+
+### List of changes in this version:
 
 * Namespace correctly. Renamed all classes
 * Added tests with a dummy app

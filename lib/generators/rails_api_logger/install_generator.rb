@@ -3,7 +3,7 @@
 require "rails/generators/base"
 require "rails/generators/migration"
 
-class RailsApiLogger
+module RailsApiLogger
   module Generators
     class InstallGenerator < Rails::Generators::Base
       include Rails::Generators::Migration

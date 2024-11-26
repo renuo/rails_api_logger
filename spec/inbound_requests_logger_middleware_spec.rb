@@ -36,7 +36,7 @@ RSpec.describe RailsApiLogger::Middleware do
       skip_response_body_regexp: skip_response_body_regexp)
   end
   let(:request) { Rack::MockRequest.new(app) }
-  let(:response) { request.post("/api/v1/books", {input: input.to_json}) }
+  let(:response) { request.post("http://api.example.org/api/v1/books", {input: input.to_json}) }
 
   before do
     RailsApiLogger::InboundRequestLog.delete_all

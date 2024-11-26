@@ -1,13 +1,15 @@
 module RailsApiLogger
   class Middleware
-    attr_accessor :only_state_change, :path_regexp, :skip_request_body_regexp, :skip_response_body_regexp
+    attr_accessor :only_state_change, :host_regexp, :path_regexp, :skip_request_body_regexp, :skip_response_body_regexp
 
     def initialize(app, only_state_change: true,
+      host_regexp: /.*/,
       path_regexp: /.*/,
       skip_request_body_regexp: nil,
       skip_response_body_regexp: nil)
       @app = app
       self.only_state_change = only_state_change
+      self.host_regexp = host_regexp
       self.path_regexp = path_regexp
       self.skip_request_body_regexp = skip_request_body_regexp
       self.skip_response_body_regexp = skip_response_body_regexp
@@ -49,7 +51,12 @@ module RailsApiLogger
     end
 
     def log?(env, request)
-      env["PATH_INFO"] =~ path_regexp && (!only_state_change || request_with_state_change?(request))
+      # The HTTP_HOST header is preferred to the SERVER_NAME header per the Rack spec: https://github.com/rack/rack/blob/main/SPEC.rdoc#label-The+Environment
+      host = env["HTTP_HOST"] || env["SERVER_NAME"]
+      path = env["PATH_INFO"]
+      (host =~ host_regexp) &&
+        (path =~ path_regexp) &&
+        (!only_state_change || request_with_state_change?(request))
     end
 
     def parsed_body(body)

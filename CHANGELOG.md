@@ -32,6 +32,7 @@ isolated transactions but don't need to create a new database or migrate data.
 * Added tests with a dummy app
 * Use a separate database connection configuration to isolate transactions
 * I acknowledge that there might be issues on mysql. I don't use it so I won't fix them, but PR are welcome.
+* Added `host_regexp` option to the middleware.
 
 # 0.9.0
 

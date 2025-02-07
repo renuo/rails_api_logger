@@ -56,7 +56,10 @@ and [configure a new database](spec/dummy/config/database.yml) accordingly.
 > ⚠️ If you skip this step, rails_api_logger will use your primary database but a rollback will also rollback the
 > writing of logs
 > If you are not on SQLite you can point also `api_logger` to the same database! By doing so you can use a single
-> database but still guarantee the writing of logs in an isolated transaction.
+> database but still guarantee the writing of logs in an isolated transaction:
+> ```
+> config.rails_api_logger.connects_to = { database: { writing: :primary } }
+> ```
 
 ## Log Outbound Requests
 

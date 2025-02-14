@@ -1,3 +1,11 @@
+# 0.10.1
+
+* Fix a bug introduced in 0.8.1 where we fixed Rails 7.1 warnings. This broke the serialization in Rails < 7.1.
+  We now configure the serializer differently if you are running Rails 7.0 or lower.
+  If you used the gem version 0.8.1 or above in combination with Rails 7.0 or lower this caused the serialization of
+  the request and response body into YML format instead of JSON. This is now fixed and tests run on different rails
+  versions as well.
+
 # 0.10.0
 
 **BREAKING CHANGES**
@@ -12,7 +20,7 @@ This version contains many breaking changes. Consider this when upgrading:
 * `InboundRequestsLoggerMiddleware` has been renamed to `RailsApiLogger::Middleware`
 
 > Do the changes above and then continue with the following steps if you want to connect rails_api_logger to a different
-database:
+> database:
 
 * Specify a database called `api_logger`. [Check here](spec/dummy/config/database.yml) for an example.
 * Check that everything still works (also in production!) with the new configuration.
@@ -23,8 +31,8 @@ database:
 * Add the following line into `production.rb`:
   `config.rails_api_logger.connects_to = { database: { writing: :api_logger } }` if you want to point to a new database.
 
-> If you are not on SQLite you can point also `api_logger` database to the current database you have, so you benefit from
-isolated transactions but don't need to create a new database or migrate data.
+> If you are not on SQLite you can point also `api_logger` database to the current database you have, so you benefit
+> from isolated transactions but don't need to create a new database or migrate data.
 
 ### List of changes in this version:
 

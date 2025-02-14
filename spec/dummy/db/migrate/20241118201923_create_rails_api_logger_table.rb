@@ -1,4 +1,4 @@
-class CreateRailsApiLoggerTable < ActiveRecord::Migration[7.1]
+class CreateRailsApiLoggerTable < ActiveRecord::Migration[Rails.version.split(".")[0..1].join(".")]
   def change
     create_table :inbound_request_logs do |t|
       t.string :method

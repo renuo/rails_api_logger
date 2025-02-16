@@ -9,6 +9,8 @@
 /spec/dummy/log
 /spec/dummy/tmp
 /spec/dummy/db/*.sqlite3*
+/spec/dummy/db/schema.rb
+/spec/dummy/db/api_logger_schema.rb
 .env
 
 # rspec failure tracking

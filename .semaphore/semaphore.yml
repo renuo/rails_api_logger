@@ -23,27 +23,129 @@ blocks:
           - bundle install -j 4
 
           - cache store
+      env_vars:
+        - name: BUNDLE_GEMFILE
+          value: /home/semaphore/rails_api_logger/gemfiles/rails_8.0.gemfile
       jobs:
         - name: linter
           commands:
             - bundle exec standardrb
-        - name: tests sqlite separate db
+        - name: tests postgres separate db and separate target
           env_vars:
-            - name: TARGET_DB
-              value: sqlite
-            - name: RAILS_ENV
-              value: test
-          commands:
-            - bundle exec rspec
-        - name: tests postgres separate db
-          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
             - name: TARGET_DB
               value: postgres
             - name: RAILS_ENV
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:schema:load
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests postgres separate db and same target
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "true"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests postgres same db and separate target
+          env_vars:
+            - name: SAME_DB
+              value: "true"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests postgres separate db and separate target | rails 6.1
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+            - name: BUNDLE_GEMFILE
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_6.1.gemfile
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests postgres separate db and separate target | rails 7.0
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+            - name: BUNDLE_GEMFILE
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_7.0.gemfile
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests postgres separate db and separate target | rails 7.1
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+            - name: BUNDLE_GEMFILE
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_7.1.gemfile
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests postgres separate db and separate target | rails 7.2
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+            - name: BUNDLE_GEMFILE
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_7.2.gemfile
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests sqlite separate db and separate target
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
+            - name: TARGET_DB
+              value: sqlite
+            - name: RAILS_ENV
+              value: test
+          commands:
+            - bin/rails db:create db:migrate
             - bundle exec rspec
         - name: tests sqlite same db
           env_vars:
@@ -54,30 +156,7 @@ blocks:
             - name: RAILS_ENV
               value: test
           commands:
-            - bundle exec rspec
-        - name: tests postgres same db
-          env_vars:
-            - name: SAME_DB
-              value: "true"
-            - name: TARGET_DB
-              value: postgres
-            - name: RAILS_ENV
-              value: test
-          commands:
-            - sem-service start postgres 14
-            - bin/rails db:create db:schema:load
-            - bundle exec rspec
-        - name: tests postgres same target
-          env_vars:
-            - name: SAME_TARGET
-              value: "true"
-            - name: TARGET_DB
-              value: postgres
-            - name: RAILS_ENV
-              value: test
-          commands:
-            - sem-service start postgres 14
-            - bin/rails db:create db:schema:load
+            - bin/rails db:create db:migrate
             - bundle exec rspec
 promotions:
   - name: main

@@ -1,4 +1,4 @@
-class Books < ActiveRecord::Migration[7.1]
+class Books < ActiveRecord::Migration[Rails.version.split(".")[0..1].join(".")]
   def change
     create_table :books do |t|
       t.string :title, null: false

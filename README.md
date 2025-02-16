@@ -216,8 +216,37 @@ end
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can
-also run `bin/console` for an interactive prompt that will allow you to experiment.
+We use Appraisals to un on different Rails versions. This is a run example:
+
+```bash
+export SAME_TARGET=false 
+export SAME_DB=false 
+export TARGET_DB=postgres 
+export BUNDLE_GEMFILE=/Users/alessandrorodi/RenuoWorkspace/rails_api_logger/gemfiles/rails_6.1.gemfile 
+bundle exec rails db:create db:migrate
+bundle exec rspec
+```
+
+These are the possible ENV variables:
+
+* `SAME_TARGET` if true, the api_logger database is the same as the primary one. It will still use two separate
+  connection pools, but they'll point to the same database. This cannot be set to true if TARGET_DB is sqlite because
+  sqlite does not support multiple connection pools to the same database.
+* `SAME_DB` if true, the api_logger uses the primary database. In this case SAME_TARGET is ignored.
+* `TARGET_DB` the database to use. Can be `postgres`, `mysql`, or `sqlite`.
+* `BUNDLE_GEMFILE` the gemfile to use. This is used to run the tests on different Rails versions.
+
+Possible combinations:
+
+| SAME_DB | SAME_TARGET | TARGET_DB | Description                                                          |
+|---------|-------------|-----------|----------------------------------------------------------------------|
+| false   | false       | postgres  | Separate database, separate connection pool.                         |
+| false   | true        | postgres  | Same database, separate connection pool.                             |
+| true    | -           | postgres  | Same connection pool so the separate target is ignored.              |
+| false   | false       | sqlite    | Separate database, separate connection pool.                         |
+| false   | true        | sqlite    | Not allowed. sqlite cannot have two connection pools to the same db. |
+| true    | -           | sqlite    | Same connection pool so the separate target is ignored.              |
+
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the
 version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version,

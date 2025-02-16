@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  rails_version = ">= 7.1"
+  rails_version = ">= 6.0"
   spec.add_dependency "activerecord", rails_version
   spec.add_dependency "activejob", rails_version
   spec.add_dependency "railties", rails_version
@@ -37,7 +37,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "mysql2", "~> 0.5.6"
   spec.add_development_dependency "standard", "~> 1.31"
   spec.add_development_dependency "rake", "~> 12.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "rspec-rails", "~> 7.1.0"
   spec.add_development_dependency "rack"
+  spec.add_development_dependency "appraisal", "~> 2.5"
 end

@@ -1,4 +1,4 @@
-<% def database_name_from(name); ENV["TARGET_DB"].nil? ? "db/#{name}.sqlite3" : name; end %>
+<% def database_name_from(name); ENV["TARGET_DB"] == "sqlite" ? "db/#{name}.sqlite3" : name; end %>
 
 <% if ENV["TARGET_DB"] == "mysql" %>
 default: &default
@@ -22,12 +22,12 @@ default: &default
   adapter: sqlite3
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 50 } %>
   timeout: 60
-
 <% end %>
 
 development:
-  <<: *default
-  database: <%= database_name_from("development") %>
+  primary:
+    <<: *default
+    database: <%= database_name_from("development") %>
   api_logger:
     <<: *default
     <% if ENV["SAME_TARGET"] == "true" %>
@@ -35,7 +35,7 @@ development:
     <% else %>
     database: <%= database_name_from("development_api_logger") %>
     <% end %>
-    migrations_paths: db/api_logger_migrate
+    migrations_paths: spec/dummy/db/api_logger_migrate
 
 test:
   primary:
@@ -48,4 +48,4 @@ test:
     <% else %>
     database: <%= database_name_from("test_api_logger") %>
     <% end %>
-    migrations_paths: db/api_logger_migrate
+    migrations_paths: spec/dummy/db/api_logger_migrate

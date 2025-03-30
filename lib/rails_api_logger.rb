@@ -1,7 +1,8 @@
-require "rails_api_logger/version"
-require "rails_api_logger/engine"
+
 require_relative "../app/models/rails_api_logger/loggable"
 require_relative "../app/middlewares/rails_api_logger/middleware"
+require "rails_api_logger/version"
+require "rails_api_logger/engine"
 
 require "rails"
 require "nokogiri"

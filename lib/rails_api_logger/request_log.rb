@@ -23,7 +23,8 @@ class RequestLog < ActiveRecord::Base
     headers_h = request&.each_header&.to_h { |k,v| [k, v.to_s] }
     headers = headers_h&.filter { |k, v| !keep_headers || keep_headers.include?(k) }&.to_json || {}
 
-    switch_tenant(request)
+    # Commenting this out as this is used for OAuth2. Not our current use case in integrations.
+    # switch_tenant(request)
 
     body = request_body ? request_body.dup.force_encoding('UTF-8').encode('UTF-8', invalid: :replace) : nil
 

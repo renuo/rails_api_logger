@@ -1,3 +1,5 @@
+require_relative '../../app/models/rails_api_logger/loggable'
+
 module RailsApiLogger
   class Engine < ::Rails::Engine
     isolate_namespace RailsApiLogger

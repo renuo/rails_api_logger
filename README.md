@@ -129,7 +129,7 @@ config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware,
 If you want to log only requests on a certain path, you can pass a regular expression:
 
 ```ruby
-config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware, path_regexp: /api/
+config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware, path_regexp: %r{^/api}
 ```
 
 If you want to log only requests on a certain host, you can also use a regular expression:

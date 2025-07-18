@@ -1,6 +1,7 @@
 class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  <% pk_type = Rails.application.config.generators.options[:active_record].dig(:primary_key_type) %>
   def change
-    create_table :inbound_request_logs do |t|
+    create_table :inbound_request_logs<%= ", id: :#{pk_type}" if pk_type %> do |t|
       t.string :method
       t.string :path
       t.text :request_body
@@ -8,11 +9,11 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migr
       t.integer :response_code
       t.timestamp :started_at
       t.timestamp :ended_at
-      t.references :loggable, index: true, polymorphic: true
+      t.references :loggable, index: true, polymorphic: true<%= ", type: :#{pk_type}" if pk_type %>
       t.timestamps null: false
     end
 
-    create_table :outbound_request_logs do |t|
+    create_table :outbound_request_logs<%= ", id: :#{pk_type}" if pk_type %> do |t|
       t.string :method
       t.string :path
       t.text :request_body
@@ -20,7 +21,7 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migr
       t.integer :response_code
       t.timestamp :started_at
       t.timestamp :ended_at
-      t.references :loggable, index: true, polymorphic: true
+      t.references :loggable, index: true, polymorphic: true<%= ", type: :#{pk_type}" if pk_type %>
       t.timestamps null: false
     end
   end

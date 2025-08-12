@@ -20,7 +20,7 @@ module RailsApiLogger
       logging = log?(env, request)
       if logging
         env["INBOUND_REQUEST_LOG"] = InboundRequestLog.from_request(request, skip_request_body: skip_request_body?(env))
-        request.body.rewind if request.body.respond_to?(:read)
+        request.body.rewind if request.body.respond_to?(:rewind)
       end
       status, headers, body = @app.call(env)
       if logging
@@ -61,16 +61,17 @@ module RailsApiLogger
 
     def parsed_body(body)
       return unless body.present?
-
-      if body.respond_to?(:to_ary)
-        JSON.parse(body.to_ary[0])
+      parsable_body = if body.respond_to?(:to_ary)
+        body.to_ary[0]
       elsif body.respond_to?(:body)
-        JSON.parse(body.body)
+        body.body
       else
         body
       end
+
+      JSON.parse(parsable_body)
     rescue JSON::ParserError, ArgumentError
-      body
+      parsable_body
     end
 
     def request_with_state_change?(request)

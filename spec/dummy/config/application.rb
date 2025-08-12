@@ -2,6 +2,7 @@
 
 require_relative "boot"
 
+require_relative "../app/middlewares/rack_attack"
 require "rails/all"
 
 # Require the gems listed in Gemfile, including any gems
@@ -25,6 +26,9 @@ module Dummy
     config.i18n.default_locale = :en
     config.i18n.fallbacks = true
 
-    config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware
+    # simulate presence of rack attack
+    config.middleware.use(RackAttack)
+
+    config.middleware.insert_after RackAttack, RailsApiLogger::Middleware, only_state_change: false
   end
 end

@@ -38,5 +38,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "standard", "~> 1.31"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rack"
+  spec.add_development_dependency "byebug"
   spec.add_development_dependency "appraisal", "~> 2.5"
 end

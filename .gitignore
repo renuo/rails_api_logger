@@ -12,7 +12,7 @@
 /spec/dummy/db/schema.rb
 /spec/dummy/db/api_logger_schema.rb
 .env
-
+.byebug_history
 # rspec failure tracking
 .rspec_status
 Gemfile.lock

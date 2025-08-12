@@ -7,9 +7,9 @@ RSpec.describe Api::BooksController, type: :request do
   end
 
   describe "#index" do
-    it "does not log the request" do
+    it "logs the request" do
       get "/api/books"
-      expect(RailsApiLogger::InboundRequestLog.count).to eq(0)
+      expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
     end
   end
 

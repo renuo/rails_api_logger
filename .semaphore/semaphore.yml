@@ -2,8 +2,8 @@ version: "v1.0"
 name: rails_api_logger
 agent:
   machine:
-    type: e1-standard-2
-    os_image: ubuntu2004
+    type: f1-standard-2
+    os_image: ubuntu2204
 auto_cancel:
   running:
     when: "true"
@@ -30,7 +30,7 @@ blocks:
         - name: linter
           commands:
             - bundle exec standardrb
-        - name: tests postgres separate db and separate target
+        - name: tests postgres separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "false"
@@ -44,7 +44,7 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres separate db and same target
+        - name: tests postgres separate db and same target | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "false"
@@ -58,7 +58,7 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres same db and separate target
+        - name: tests postgres same db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "true"
@@ -134,7 +134,7 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests sqlite separate db and separate target
+        - name: tests sqlite separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "false"
@@ -147,7 +147,7 @@ blocks:
           commands:
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests sqlite same db
+        - name: tests sqlite same db | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "true"
@@ -155,6 +155,19 @@ blocks:
               value: sqlite
             - name: RAILS_ENV
               value: test
+          commands:
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
+        - name: tests webrick | rails 8.0
+          env_vars:
+            - name: SAME_DB
+              value: "true"
+            - name: TARGET_DB
+              value: sqlite
+            - name: RAILS_ENV
+              value: test
+            - name: BUNDLE_GEMFILE
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_webrick_8.0.gemfile
           commands:
             - bin/rails db:create db:migrate
             - bundle exec rspec

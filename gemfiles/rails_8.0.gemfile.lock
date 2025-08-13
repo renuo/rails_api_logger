@@ -84,6 +84,10 @@ GEM
       uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    ammeter (1.1.7)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-rails (>= 2.2)
     appraisal (2.5.0)
       bundler
       rake
@@ -275,6 +279,7 @@ PLATFORMS
   arm64-darwin
 
 DEPENDENCIES
+  ammeter (~> 1.1)
   appraisal (~> 2.5)
   byebug
   mysql2 (~> 0.5.6)

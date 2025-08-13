@@ -5,7 +5,7 @@ require "bundler/setup"
 require "net/http"
 require_relative "../spec/dummy/config/environment"
 
-require 'webmock/rspec'
+require "webmock/rspec"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

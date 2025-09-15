@@ -205,6 +205,15 @@ This configuration will give you some nice views, and searches to work with the 
     show do
       include_fields :loggable, :method, :path, :response_code
       field(:created_at)
+      field(:query_params) do
+        formatted_value do
+          params = bindings[:object].path.split("?").second
+          if params.present?
+            params = CGI.parse(params)
+            "<pre>#{JSON.pretty_generate(params)}</pre>".html_safe
+          end
+        end
+      end
       field(:request_body) do
         formatted_value { "<pre>#{JSON.pretty_generate(bindings[:object].request_body)}</pre>".html_safe }
       end

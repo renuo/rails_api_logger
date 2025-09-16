@@ -210,15 +210,15 @@ This configuration will give you some nice views, and searches to work with the 
           params = bindings[:object].path.split("?").second
           if params.present?
             params = CGI.parse(params)
-            "<pre>#{JSON.pretty_generate(params)}</pre>".html_safe
+            bindings[:view].tag.pre JSON.pretty_generate(params)
           end
         end
       end
       field(:request_body) do
-        formatted_value { "<pre>#{JSON.pretty_generate(bindings[:object].request_body)}</pre>".html_safe }
+        formatted_value { bindings[:view].tag.pre JSON.pretty_generate(bindings[:object].request_body) }
       end
       field(:response_body) do
-        formatted_value { "<pre>#{JSON.pretty_generate(bindings[:object].response_body)}</pre>".html_safe }
+        formatted_value { bindings[:view].tag.pre JSON.pretty_generate(bindings[:object].response_body) }
       end
     end
   end

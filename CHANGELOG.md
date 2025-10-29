@@ -1,3 +1,9 @@
+# 0.11.0
+
+* Fix stack trace to deep in webrick
+* Fixes for Rails < 7.1
+* Support custom primary key types in migration template
+
 # 0.10.1
 
 * Fix a bug introduced in 0.8.1 where we fixed Rails 7.1 warnings. This broke the serialization in Rails < 7.1.

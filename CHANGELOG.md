@@ -1,3 +1,7 @@
+# 0.11.1
+
+* Remove deprecated "require_dependency"
+
 # 0.11.0
 
 * Fix stack trace to deep in webrick

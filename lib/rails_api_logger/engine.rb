@@ -15,7 +15,7 @@ module RailsApiLogger
     end
 
     ActiveSupport.on_load(:action_controller) do
-      require_dependency "inbound_requests_logger"
+      require_relative "../../app/controllers/inbound_requests_logger"
       ActionController::Base.include ::InboundRequestsLogger
     end
 

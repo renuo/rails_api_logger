@@ -105,6 +105,47 @@ end
 
 This will guarantee that the log is always persisted, even in case of errors.
 
+### Using Faraday
+
+If you use [Faraday](https://github.com/lostisland/faraday) for HTTP requests, `from_response` works seamlessly with `Faraday::Response` objects:
+
+```ruby
+conn = Faraday.new(url: 'https://api.example.com')
+
+log = RailsApiLogger::OutboundRequestLog.create(
+  path: "https://api.example.com/users",
+  method: "POST",
+  request_body: { name: "John" },
+  started_at: Time.current
+)
+
+response = conn.post('/users', { name: 'John' }.to_json)
+
+log.from_response(response)
+log.ended_at = Time.current
+log.save!
+```
+
+For automatic logging of all requests, use the provided middleware:
+
+```ruby
+conn = Faraday.new(url: 'https://api.example.com') do |f|
+  f.use RailsApiLogger::FaradayMiddleware
+  f.adapter Faraday.default_adapter
+end
+
+response = conn.post('/users', { name: 'John' }.to_json)
+```
+
+The middleware accepts the following options:
+
+```ruby
+f.use RailsApiLogger::FaradayMiddleware,
+      loggable: current_user,        # associate log with a model
+      skip_request_body: true,       # don't log request body
+      skip_response_body: true       # don't log response body
+```
+
 ### Database Transactions Caveats
 
 If you log your outbound requests inside of parent app transactions, your logs will not be persisted if

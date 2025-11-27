@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    rails_api_logger (0.10.1)
+    rails_api_logger (0.11.0)
       activejob (>= 6.0)
       activerecord (>= 6.0)
       nokogiri

@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description = "Log inbound and outbound API requests in your Rails application"
   spec.homepage = "https://github.com/renuo/rails_api_logger"
   spec.license = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
+  spec.required_ruby_version = ">= 3.2"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/renuo/rails_api_logger"
@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  rails_version = ">= 6.0"
+  rails_version = ">= 7.2"
   spec.add_dependency "activerecord", rails_version
   spec.add_dependency "activejob", rails_version
   spec.add_dependency "railties", rails_version

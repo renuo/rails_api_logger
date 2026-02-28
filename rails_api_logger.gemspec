@@ -40,4 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rack"
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "appraisal"
+  spec.add_development_dependency "rspec-rails"
+  spec.add_development_dependency "webmock"
+  spec.add_development_dependency "ammeter"
 end

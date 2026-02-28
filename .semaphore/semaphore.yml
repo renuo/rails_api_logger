@@ -42,8 +42,8 @@ blocks:
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests postgres separate db and same target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -56,8 +56,8 @@ blocks:
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests postgres same db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -68,8 +68,8 @@ blocks:
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests postgres separate db and separate target | rails 6.1
           env_vars:
             - name: SAME_DB
@@ -84,8 +84,8 @@ blocks:
               value: /home/semaphore/rails_api_logger/gemfiles/rails_6.1.gemfile
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests postgres separate db and separate target | rails 7.0
           env_vars:
             - name: SAME_DB
@@ -100,8 +100,8 @@ blocks:
               value: /home/semaphore/rails_api_logger/gemfiles/rails_7.0.gemfile
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests postgres separate db and separate target | rails 7.1
           env_vars:
             - name: SAME_DB
@@ -116,8 +116,8 @@ blocks:
               value: /home/semaphore/rails_api_logger/gemfiles/rails_7.1.gemfile
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests postgres separate db and separate target | rails 7.2
           env_vars:
             - name: SAME_DB
@@ -132,8 +132,8 @@ blocks:
               value: /home/semaphore/rails_api_logger/gemfiles/rails_7.2.gemfile
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests sqlite separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -145,8 +145,8 @@ blocks:
             - name: RAILS_ENV
               value: test
           commands:
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests sqlite same db | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -156,8 +156,8 @@ blocks:
             - name: RAILS_ENV
               value: test
           commands:
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
         - name: tests webrick | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -169,8 +169,8 @@ blocks:
             - name: BUNDLE_GEMFILE
               value: /home/semaphore/rails_api_logger/gemfiles/rails_webrick_8.0.gemfile
           commands:
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/rails db:create
+            - bundle exec rake
 promotions:
   - name: main
     pipeline_file: main-deploy.yml

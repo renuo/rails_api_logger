@@ -20,6 +20,7 @@ module RailsApiLogger
     validates :path, presence: true
 
     def self.from_request(request, loggable: nil, skip_request_body: false)
+      request = normalize_request(request)
       if skip_request_body
         body = "[Skipped]"
       else
@@ -35,10 +36,41 @@ module RailsApiLogger
     end
 
     def from_response(response, skip_response_body: false)
+      response = self.class.normalize_response(response)
       self.response_code = response.code
       self.response_body = skip_response_body ? "[Skipped]" : manipulate_body(response.body)
       self
     end
+
+    def self.normalize_request(request)
+      return request unless faraday_request?(request)
+
+      NormalizedRequest.new(
+        path: request.url.to_s,
+        body: request.request_body,
+        method: request.method.to_s.upcase
+      )
+    end
+
+    def self.normalize_response(response)
+      return response unless faraday_response?(response)
+
+      NormalizedResponse.new(
+        code: response.status,
+        body: response.body
+      )
+    end
+
+    def self.faraday_request?(request)
+      defined?(Faraday::Env) && request.is_a?(Faraday::Env)
+    end
+
+    def self.faraday_response?(response)
+      defined?(Faraday::Response) && response.is_a?(Faraday::Response)
+    end
+
+    NormalizedRequest = Struct.new(:path, :body, :method, keyword_init: true)
+    NormalizedResponse = Struct.new(:code, :body, keyword_init: true)
 
     def formatted_request_body
       formatted_body(request_body)

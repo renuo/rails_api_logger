@@ -8,5 +8,6 @@ gem "sqlite3", "~> 2.1.0"
 gem "ammeter", "~> 1.1"
 gem "webrick", "~> 1.9.1"
 gem "webmock", "~> 3.25.0"
+gem "faraday", "~> 2.0"
 
 gemspec path: "../"

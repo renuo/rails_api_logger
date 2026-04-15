@@ -4,7 +4,7 @@
 
 # 0.11.0
 
-* Fix stack trace to deep in webrick
+* Fix stack trace too deep in webrick
 * Fixes for Rails < 7.1
 * Support custom primary key types in migration template
 

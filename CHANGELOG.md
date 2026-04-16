@@ -1,3 +1,18 @@
+# 0.12.0
+
+* Add `client_reference` column to both `inbound_request_logs` and `outbound_request_logs`. This is a free-form
+  indexed string you can set on a log entry to correlate it with any external identifier (similar in spirit to
+  `loggable`, but without a polymorphic association).
+    * For outbound requests, pass it to the logger: `RailsApiLogger::Logger.new(client_reference: "abc-123")`.
+    * For inbound requests, call `attach_inbound_request_client_reference("abc-123")` from your controller.
+
+To upgrade an existing app, run:
+
+```
+bin/rails g rails_api_logger:upgrade_client_reference
+bin/rails db:migrate
+```
+
 # 0.11.1
 
 * Remove deprecated "require_dependency"

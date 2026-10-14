@@ -80,6 +80,17 @@ RSpec.describe RailsApiLogger::FaradayMiddleware do
     end
   end
 
+  describe "with client_reference option" do
+    let(:options) { {client_reference: "acme"} }
+
+    it "stores the client reference" do
+      connection.get("/users/1")
+
+      log = RailsApiLogger::OutboundRequestLog.last
+      expect(log.client_reference).to eq("acme")
+    end
+  end
+
   describe "when request fails" do
     it "logs the error and re-raises" do
       expect {

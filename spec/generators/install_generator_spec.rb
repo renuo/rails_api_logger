@@ -28,6 +28,7 @@ RSpec.describe RailsApiLogger::Generators::InstallGenerator, type: :generator do
       expect(migration).to contain("create_table :inbound_request_logs do")
       expect(migration).to contain("create_table :outbound_request_logs do")
       expect(migration).to contain("t.references :loggable, index: true, polymorphic: true")
+      expect(migration).to contain("t.string :client_reference, index: true")
       expect(migration).not_to contain("id: :uuid")
       expect(migration).not_to contain("type: :uuid")
     end

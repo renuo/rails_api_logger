@@ -19,7 +19,7 @@ module RailsApiLogger
     validates :method, presence: true
     validates :path, presence: true
 
-    def self.from_request(request, loggable: nil, skip_request_body: false)
+    def self.from_request(request, loggable: nil, client_reference: nil, skip_request_body: false)
       request = normalize_request(request)
       if skip_request_body
         body = "[Skipped]"
@@ -32,7 +32,8 @@ module RailsApiLogger
           body
         end
       end
-      create(path: request.path, request_body: body, method: request.method, started_at: Time.current, loggable: loggable)
+      create(path: request.path, request_body: body, method: request.method, started_at: Time.current,
+        loggable: loggable, client_reference: client_reference)
     end
 
     def from_response(response, skip_response_body: false)

@@ -15,7 +15,8 @@ RSpec.describe RailsApiLogger::OutboundRequestLog do
       http = Net::HTTP.new(uri.host, uri.port)
       request = Net::HTTP::Post.new(uri)
       request.body = {"my" => {"request" => "body"}}.to_json
-      RailsApiLogger::Logger.new(skip_request_body: skip_request_body, skip_response_body: skip_response_body)
+      RailsApiLogger::Logger.new(client_reference: "ref-abc",
+        skip_request_body: skip_request_body, skip_response_body: skip_response_body)
         .call(uri, request) { http.start { |http| http.request(request) } }
     end
 
@@ -26,6 +27,7 @@ RSpec.describe RailsApiLogger::OutboundRequestLog do
       expect(log.ended_at).to be_present
       expect(log.request_body).to be_present
       expect(log.response_body).to be_present
+      expect(log.client_reference).to eq("ref-abc")
     end
 
     describe "if the skip_request_body option is set" do

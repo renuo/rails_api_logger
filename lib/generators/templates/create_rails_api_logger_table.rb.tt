@@ -10,6 +10,7 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migr
       t.timestamp :started_at
       t.timestamp :ended_at
       t.references :loggable, index: true, polymorphic: true<%= ", type: :#{pk_type}" if pk_type %>
+      t.string :client_reference, index: true
       t.timestamps null: false
     end
 
@@ -22,6 +23,7 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[<%= ActiveRecord::Migr
       t.timestamp :started_at
       t.timestamp :ended_at
       t.references :loggable, index: true, polymorphic: true<%= ", type: :#{pk_type}" if pk_type %>
+      t.string :client_reference, index: true
       t.timestamps null: false
     end
   end

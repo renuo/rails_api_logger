@@ -6,7 +6,8 @@ module RailsApiLogger
     end
 
     def call(env)
-      log = OutboundRequestLog.from_request(env, loggable: @options[:loggable], skip_request_body: @options[:skip_request_body])
+      log = OutboundRequestLog.from_request(env, loggable: @options[:loggable], client_reference: @options[:client_reference],
+        skip_request_body: @options[:skip_request_body])
 
       @app.call(env).on_complete do |response_env|
         log.from_response(response_env.response, skip_response_body: @options[:skip_response_body])

@@ -142,6 +142,7 @@ The middleware accepts the following options:
 ```ruby
 f.use RailsApiLogger::FaradayMiddleware,
       loggable: current_user,        # associate log with a model
+      client_reference: "acme",      # store a reference to the client
       skip_request_body: true,       # don't log request body
       skip_response_body: true       # don't log response body
 ```
@@ -214,6 +215,29 @@ has_many_inbound_request_logs
 to be able to access the inbound logs attached to the model.
 
 You also have `has_many_outbound_request_logs` and `has_many_request_logs` that includes both.
+
+### Client reference
+
+Both `inbound_request_logs` and `outbound_request_logs` have a `client_reference` column: a free-form indexed
+string you can set on a log entry to correlate it with any external identifier (e.g. a request id coming from an
+upstream system, an idempotency key, a tenant slug). It is independent from the `loggable` polymorphic association.
+
+For inbound requests, attach it from your controller:
+
+```ruby
+def create
+  attach_inbound_request_client_reference(request.headers["X-Request-Id"])
+  # ...
+end
+```
+
+For outbound requests, pass it when instantiating the logger:
+
+```ruby
+RailsApiLogger::Logger.new(client_reference: "ref-abc").call(uri, request) do
+  http.request(request)
+end
+```
 
 ## RailsAdmin integration
 

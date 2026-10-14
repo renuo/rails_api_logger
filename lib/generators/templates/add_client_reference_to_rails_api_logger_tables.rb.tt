@@ -1,0 +1,9 @@
+class AddClientReferenceToRailsApiLoggerTables < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    add_column :inbound_request_logs, :client_reference, :string
+    add_index :inbound_request_logs, :client_reference
+
+    add_column :outbound_request_logs, :client_reference, :string
+    add_index :outbound_request_logs, :client_reference
+  end
+end

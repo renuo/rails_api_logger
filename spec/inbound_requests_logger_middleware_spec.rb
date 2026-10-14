@@ -13,6 +13,7 @@ class MyApp
     @env = env
     book = Book.create!(title: "My Book", author: "John Doe")
     attach_inbound_request_loggable(book)
+    attach_inbound_request_client_reference("ref-123")
 
     [200, {}, @response_body]
   end
@@ -60,6 +61,7 @@ RSpec.describe RailsApiLogger::Middleware do
       expect(inbound_request_log.duration).to be > 0
       expect(inbound_request_log.loggable_type).to eq("Book")
       expect(inbound_request_log.loggable_id).to be_present
+      expect(inbound_request_log.client_reference).to eq("ref-123")
     end
   end
 

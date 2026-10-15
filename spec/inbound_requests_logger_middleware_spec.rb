@@ -43,6 +43,10 @@ RSpec.describe RailsApiLogger::Middleware do
     RailsApiLogger::InboundRequestLog.delete_all
   end
 
+  after do
+    RailsApiLogger::InboundRequestLog.delete_all
+  end
+
   context "when the HTTP_HOST matches the host_regexp" do
     let(:host_regexp) { /api.example.org/ }
 
@@ -122,13 +126,13 @@ RSpec.describe RailsApiLogger::Middleware do
         RailsApiLogger::Middleware.new(MyApp.new(response_body: "iPhone\xAE"), path_regexp: path_regexp)
       end
 
-      it "logs a request in the database without body" do
+      it "logs a request in the database with the size of the body" do
         expect(response.status).to eq(200)
         expect(response.body).to eq("iPhone\xAE")
         expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
         inbound_request_log = RailsApiLogger::InboundRequestLog.first
         expect(inbound_request_log.response_code).to eq(200)
-        expect(inbound_request_log.response_body).to be_nil
+        expect(inbound_request_log.response_body).to eq("[Binary: 7 bytes]")
       end
     end
   end
@@ -150,6 +154,29 @@ RSpec.describe RailsApiLogger::Middleware do
       expect(response.status).to eq(200)
       expect(response.body).to eq("Hello World")
       expect(RailsApiLogger::InboundRequestLog.count).to eq(0)
+    end
+  end
+
+  context "when a file is uploaded" do
+    let(:file) do
+      Tempfile.new(["image", ".png"]).tap do |f|
+        f.binmode
+        f.write("\x89PNG\r\n\x1A\n\x00\x00\x00\rIHDR\xFF\xFE".b)
+        f.rewind
+      end
+    end
+    let(:upload) { Rack::Multipart::UploadedFile.new(file.path, "image/png", true) }
+    let(:response) do
+      env = Rack::MockRequest.env_for("http://api.example.org/api/v1/books", method: "POST", params: {image: upload})
+      request.post("http://api.example.org/api/v1/books", :input => env["rack.input"].read,
+        "CONTENT_TYPE" => env["CONTENT_TYPE"])
+    end
+
+    it "logs the request with the size of the body instead of its bytes" do
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("Hello World")
+      expect(RailsApiLogger::InboundRequestLog.count).to eq(1)
+      expect(RailsApiLogger::InboundRequestLog.last.request_body).to match(/\A\[Binary: \d+ bytes\]\z/)
     end
   end
 end

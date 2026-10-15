@@ -43,6 +43,10 @@ RSpec.describe RailsApiLogger::Middleware do
     RailsApiLogger::InboundRequestLog.delete_all
   end
 
+  after do
+    RailsApiLogger::InboundRequestLog.delete_all
+  end
+
   context "when the HTTP_HOST matches the host_regexp" do
     let(:host_regexp) { /api.example.org/ }
 
@@ -150,6 +154,30 @@ RSpec.describe RailsApiLogger::Middleware do
       expect(response.status).to eq(200)
       expect(response.body).to eq("Hello World")
       expect(RailsApiLogger::InboundRequestLog.count).to eq(0)
+    end
+  end
+
+  context "when the log can't be created" do
+    before { allow(RailsApiLogger::InboundRequestLog).to receive(:from_request).and_raise(ActiveRecord::ConnectionNotEstablished) }
+
+    it "still runs the app and reports the error" do
+      expect_logging_error(ActiveRecord::ConnectionNotEstablished)
+      expect { response }.to change(Book, :count).by(1)
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("Hello World")
+    end
+  end
+
+  context "when the log can't be updated" do
+    before do
+      allow_any_instance_of(RailsApiLogger::InboundRequestLog).to receive(:update).and_raise(ActiveRecord::StatementInvalid)
+      allow_any_instance_of(RailsApiLogger::InboundRequestLog).to receive(:update_columns).and_raise(ActiveRecord::StatementInvalid)
+    end
+
+    it "still returns the response of the app" do
+      expect_logging_error(ActiveRecord::StatementInvalid)
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("Hello World")
     end
   end
 end

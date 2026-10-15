@@ -1,3 +1,10 @@
+# Unreleased
+
+* Logging never breaks the host app anymore. When the log can't be written (the logging database is down, a
+  validation fails, a column is too small...), the error is reported to `Rails.error` (`Rails.logger` on Rails 6)
+  and the request goes on without a log. Before, the app answered 500, an outbound request was not sent, or a
+  successful outbound request raised. The errors of your own requests are still raised as before.
+
 # 0.12.0
 
 * Add `client_reference` column to both `inbound_request_logs` and `outbound_request_logs`. This is a free-form

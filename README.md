@@ -105,6 +105,11 @@ end
 
 This will guarantee that the log is always persisted, even in case of errors.
 
+### Errors while logging
+
+Logging never breaks your app. If a log can't be written, for example because the logging database is down,
+the error is reported to `Rails.error` (on Rails 6, to `Rails.logger`) and the request goes on without a log.
+
 ### Database Transactions Caveats
 
 If you log your outbound requests inside of parent app transactions, your logs will not be persisted if

@@ -23,3 +23,16 @@ RSpec.configure do |config|
     stub_request(:any, /httpbin.org/).to_return(status: 200, body: "here is my response")
   end
 end
+
+module ErrorReportingHelpers
+  # Rails.error exists only on Rails 7+; on Rails 6 the error goes to Rails.logger.
+  def expect_logging_error(error_class)
+    if Rails.respond_to?(:error)
+      expect(Rails.error).to receive(:report).with(an_instance_of(error_class), handled: true).at_least(:once)
+    else
+      expect(Rails.logger).to receive(:error).with(/#{error_class}/).at_least(:once)
+    end
+  end
+end
+
+RSpec.configure { |config| config.include ErrorReportingHelpers }

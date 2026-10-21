@@ -6,6 +6,10 @@ RSpec.describe RailsApiLogger::OutboundRequestLog do
     Book.delete_all
   end
 
+  after do
+    described_class.delete_all
+  end
+
   describe "logging of a request" do
     let(:skip_request_body) { false }
     let(:skip_response_body) { false }
@@ -102,6 +106,54 @@ RSpec.describe RailsApiLogger::OutboundRequestLog do
         expect(described_class.new(started_at: 3.seconds.ago).duration).to be_nil
         expect(described_class.new(ended_at: 3.seconds.ago).duration).to be_nil
       end
+    end
+  end
+
+  describe "if the log can't be saved" do
+    let(:uri) { URI("http://example.com/books") }
+    let(:request) { Net::HTTP::Post.new(uri) }
+    let(:response) { Struct.new(:code, :body).new(200, "ok") }
+
+    it "still sends the request when the log can't be created" do
+      allow(described_class).to receive(:from_request).and_raise(ActiveRecord::ConnectionNotEstablished)
+      expect_logging_error(ActiveRecord::ConnectionNotEstablished)
+
+      sent = false
+      result = RailsApiLogger::Logger.new.call(uri, request) do
+        sent = true
+        response
+      end
+
+      expect(sent).to be(true)
+      expect(result).to eq(response)
+    end
+
+    it "still returns the response when the log can't be saved" do
+      allow_any_instance_of(described_class).to receive(:save!).and_raise(ActiveRecord::StatementInvalid)
+      expect_logging_error(ActiveRecord::StatementInvalid)
+
+      expect(RailsApiLogger::Logger.new.call(uri, request) { response }).to eq(response)
+    end
+
+    it "keeps the transaction of the app usable when the log fails" do
+      allow(described_class).to receive(:from_request) { described_class.connection.execute("SELECT * FROM missing_table") }
+      expect_logging_error(ActiveRecord::StatementInvalid)
+
+      ActiveRecord::Base.transaction do
+        Book.create!(title: "Before", author: "Author")
+        RailsApiLogger::Logger.new.call(uri, request) { response }
+        Book.create!(title: "After", author: "Author")
+      end
+
+      expect(Book.count).to eq(2)
+    end
+
+    it "still raises the error of the request" do
+      allow_any_instance_of(described_class).to receive(:save!).and_raise(ActiveRecord::StatementInvalid)
+
+      expect {
+        RailsApiLogger::Logger.new.call(uri, request) { raise Timeout::Error }
+      }.to raise_error(Timeout::Error)
     end
   end
 end

@@ -47,4 +47,12 @@ RSpec.describe RailsApiLogger::RequestLog do
       end
     end
   end
+
+  describe "#from_response with a body that is not valid UTF-8" do
+    it "logs the size of the body instead of its bytes" do
+      response = Struct.new(:code, :body).new(200, "%PDF-1.7\n\xE2\xE3\xCF\xD3".b)
+      log = RailsApiLogger::OutboundRequestLog.new.from_response(response)
+      expect(log.response_body).to eq("[Binary: 13 bytes]")
+    end
+  end
 end

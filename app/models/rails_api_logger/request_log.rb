@@ -24,15 +24,24 @@ module RailsApiLogger
         body = "[Skipped]"
       else
         request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
-        body = request_body&.dup&.force_encoding("UTF-8")
-        begin
-          body = JSON.parse(body) if body.present?
-        rescue JSON::ParserError
-          body
-        end
+        body = parse_body(request_body)
       end
       create(path: request.path, request_body: body, method: request.method, started_at: Time.current,
         loggable: loggable, client_reference: client_reference)
+    end
+
+    # Bodies that are not valid UTF-8 (file uploads, images, PDFs...) can't be stored as text,
+    # so only their size is logged.
+    def self.parse_body(body)
+      return body unless body.is_a?(String)
+
+      body = body.dup.force_encoding("UTF-8")
+      return "[Binary: #{body.bytesize} bytes]" unless body.valid_encoding?
+      return body if body.blank?
+
+      JSON.parse(body)
+    rescue JSON::ParserError
+      body
     end
 
     def from_response(response, skip_response_body: false)
@@ -74,13 +83,7 @@ module RailsApiLogger
     private
 
     def manipulate_body(body)
-      body_duplicate = body&.dup&.force_encoding("UTF-8")
-      begin
-        body_duplicate = JSON.parse(body_duplicate) if body_duplicate.present?
-      rescue JSON::ParserError
-        body_duplicate
-      end
-      body_duplicate
+      self.class.parse_body(body)
     end
   end
 end

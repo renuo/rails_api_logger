@@ -146,6 +146,9 @@ config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware,
                                 skip_response_body_regexp: /api\/letters/
 ```
 
+Bodies that are not valid UTF-8, such as file uploads, images or PDFs, are not stored.
+The log keeps only their size, for example `"[Binary: 2048 bytes]"`.
+
 In the implementation of your API, you can call any time `attach_inbound_request_loggable(model)`
 to attach an already persisted model to the log record.
 

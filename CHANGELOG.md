@@ -1,4 +1,4 @@
-# Unreleased
+# 1.0.0
 
 * **Breaking:** Drop support for Rails < 8.0 and Ruby < 3.2.
 * Logging never breaks the host app anymore. When the log can't be written (the logging database is down, a

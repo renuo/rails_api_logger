@@ -8,6 +8,16 @@
 * Fix a crash (500 in the host app) when a request body is not valid UTF-8, for example a file upload
   ([#6](https://github.com/renuo/rails_api_logger/issues/6)). Request and response bodies that are not valid UTF-8
   are now stored as `"[Binary: <size> bytes]"`. Before, such a response body was stored as `nil`.
+* The install migration creates `started_at` and `ended_at` as `datetime` instead of `timestamp`. On MySQL 8,
+  `timestamp` columns have no fractional seconds, so the duration of a request was rounded to whole seconds.
+  Existing MySQL apps can migrate their columns with:
+
+```ruby
+%i[inbound_request_logs outbound_request_logs].each do |table|
+  change_column table, :started_at, :datetime, precision: 6
+  change_column table, :ended_at, :datetime, precision: 6
+end
+```
 
 # 0.12.0
 

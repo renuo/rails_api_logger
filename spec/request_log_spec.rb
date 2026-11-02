@@ -27,6 +27,19 @@ RSpec.describe RailsApiLogger::RequestLog do
 
       expect(log.reload.response_body).to eq("a" => 2)
     end
+
+    it "still rejects malformed JSON" do
+      log = RailsApiLogger::OutboundRequestLog.create!(path: "/", method: "GET")
+      RailsApiLogger::OutboundRequestLog.where(id: log.id).update_all(["response_body = ?", '{"a":'])
+
+      expect { log.reload.response_body }.to raise_error(JSON::ParserError)
+    end
+
+    it "round-trips hashes and plain strings" do
+      log = RailsApiLogger::OutboundRequestLog.create!(path: "/", method: "GET", request_body: {"a" => [1, "<b>"]}, response_body: "plain")
+
+      expect(log.reload).to have_attributes(request_body: {"a" => [1, "<b>"]}, response_body: "plain")
+    end
   end
 
   describe "#from_response" do

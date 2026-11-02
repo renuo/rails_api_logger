@@ -14,6 +14,7 @@ bin/rails db:migrate
 ```
 
 * Log binary-encoded inbound response bodies again when using json 3.1 or later, instead of silently dropping them.
+* Keep reading logs that json 2 persisted with duplicate keys when using json 3.0 or later.
 
 # 0.11.1
 

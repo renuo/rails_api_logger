@@ -5,11 +5,11 @@ module RailsApiLogger
     connects_to(**RailsApiLogger.connects_to) if RailsApiLogger.connects_to
 
     if Gem::Version.new(Rails.version) >= Gem::Version.new("7.1")
-      serialize :request_body, coder: JSON
-      serialize :response_body, coder: JSON
+      serialize :request_body, coder: BodyCoder
+      serialize :response_body, coder: BodyCoder
     else
-      serialize :request_body, JSON
-      serialize :response_body, JSON
+      serialize :request_body, BodyCoder
+      serialize :response_body, BodyCoder
     end
 
     belongs_to :loggable, optional: true, polymorphic: true

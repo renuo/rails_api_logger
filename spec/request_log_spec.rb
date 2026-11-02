@@ -20,6 +20,15 @@ RSpec.describe RailsApiLogger::RequestLog do
     end
   end
 
+  describe "reading a persisted body" do
+    it "tolerates duplicate keys written before json 3.0" do
+      log = RailsApiLogger::OutboundRequestLog.create!(path: "/", method: "GET")
+      RailsApiLogger::OutboundRequestLog.where(id: log.id).update_all(["response_body = ?", '{"a":1,"a":2}'])
+
+      expect(log.reload.response_body).to eq("a" => 2)
+    end
+  end
+
   describe "#from_response" do
     let(:uri) { URI("http://example.com/some_path?query=string") }
     let(:http) { Net::HTTP.new(uri.host, uri.port) }

@@ -68,6 +68,7 @@ module RailsApiLogger
       else
         body
       end
+      parsable_body = parsable_body&.dup&.force_encoding("UTF-8")
 
       JSON.parse(parsable_body)
     rescue JSON::ParserError, ArgumentError

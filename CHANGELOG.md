@@ -13,6 +13,8 @@ bin/rails g rails_api_logger:upgrade_client_reference
 bin/rails db:migrate
 ```
 
+* Log binary-encoded inbound response bodies again when using json 3.1 or later, instead of silently dropping them.
+
 # 0.11.1
 
 * Remove deprecated "require_dependency"

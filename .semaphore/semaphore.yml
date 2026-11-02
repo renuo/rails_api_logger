@@ -135,6 +135,22 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
+        - name: tests postgres separate db and separate target | rails 8.1 json 3
+          env_vars:
+            - name: SAME_DB
+              value: "false"
+            - name: SAME_TARGET
+              value: "false"
+            - name: TARGET_DB
+              value: postgres
+            - name: RAILS_ENV
+              value: test
+            - name: BUNDLE_GEMFILE
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_8.1_json_3.gemfile
+          commands:
+            - sem-service start postgres 14
+            - bin/rails db:create db:migrate
+            - bundle exec rspec
         - name: tests sqlite separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB

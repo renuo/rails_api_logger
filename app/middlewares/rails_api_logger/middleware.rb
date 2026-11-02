@@ -64,7 +64,6 @@ module RailsApiLogger
     end
 
     def parsed_body(body)
-      return unless body.present?
       parsable_body = if body.respond_to?(:to_ary)
         body.to_ary[0]
       elsif body.respond_to?(:body)
@@ -73,9 +72,7 @@ module RailsApiLogger
         body
       end
 
-      JSON.parse(parsable_body)
-    rescue JSON::ParserError, ArgumentError
-      parsable_body
+      RequestLog.parse_body(parsable_body).presence
     end
 
     def request_with_state_change?(request)

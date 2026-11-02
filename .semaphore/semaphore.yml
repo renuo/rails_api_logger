@@ -20,6 +20,7 @@ blocks:
           - checkout --use-cache
           - cache restore
           - bundle config set path 'vendor/bundle'
+          - bundle config set clean 'true'
           - bundle install -j 4
 
           - cache store

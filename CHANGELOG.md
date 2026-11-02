@@ -5,6 +5,9 @@
   validation fails, a column is too small...), the error is reported to `Rails.error` with source
   `rails_api_logger` and the request goes on without a log. Before, the app answered 500, an outbound request was
   not sent, or a successful outbound request raised. The errors of your own requests are still raised as before.
+* Fix a crash (500 in the host app) when a request body is not valid UTF-8, for example a file upload
+  ([#6](https://github.com/renuo/rails_api_logger/issues/6)). Request and response bodies that are not valid UTF-8
+  are now stored as `"[Binary: <size> bytes]"`. Before, such a response body was stored as `nil`.
 
 # 0.12.0
 

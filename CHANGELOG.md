@@ -1,3 +1,9 @@
+# Unreleased
+
+* Fix a crash (500 in the host app) when a request body is not valid UTF-8, for example a file upload
+  ([#6](https://github.com/renuo/rails_api_logger/issues/6)). Request and response bodies that are not valid UTF-8
+  are now stored as `"[Binary: <size> bytes]"`. Before, such a response body was stored as `nil`.
+
 # 0.12.0
 
 * Add `client_reference` column to both `inbound_request_logs` and `outbound_request_logs`. This is a free-form

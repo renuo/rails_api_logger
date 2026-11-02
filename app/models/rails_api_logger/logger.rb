@@ -8,17 +8,23 @@ module RailsApiLogger
     end
 
     def call(url, request)
-      log = OutboundRequestLog.from_request(request, loggable: @loggable, client_reference: @client_reference,
-        skip_request_body: @skip_request_body)
+      log = RailsApiLogger.safely do
+        OutboundRequestLog.from_request(request, loggable: @loggable, client_reference: @client_reference,
+          skip_request_body: @skip_request_body)
+      end
       yield.tap do |response|
-        log.from_response(response, skip_response_body: @skip_response_body)
+        RailsApiLogger.safely { log&.from_response(response, skip_response_body: @skip_response_body) }
       end
     rescue => e
       log.response_body = {error: e.message} if log
       raise
     ensure
-      log.ended_at = Time.current
-      log.save!
+      if log
+        RailsApiLogger.safely do
+          log.ended_at = Time.current
+          log.save!
+        end
+      end
     end
   end
 end

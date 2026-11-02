@@ -19,22 +19,26 @@ module RailsApiLogger
       request = ActionDispatch::Request.new(env)
       logging = log?(env, request)
       if logging
-        env["INBOUND_REQUEST_LOG"] = InboundRequestLog.from_request(request, skip_request_body: skip_request_body?(env))
+        env["INBOUND_REQUEST_LOG"] = RailsApiLogger.safely do
+          InboundRequestLog.from_request(request, skip_request_body: skip_request_body?(env))
+        end
         request.body.rewind if request.body.respond_to?(:rewind)
       end
       status, headers, body = @app.call(env)
-      if logging
-        updates = {response_code: status, ended_at: Time.current}
-        updates[:response_body] = if skip_response_body?(env)
-          "[Skipped]"
-        else
-          parsed_body(body)
-        end
-        # this usually works. let's be optimistic.
-        begin
-          env["INBOUND_REQUEST_LOG"].update_columns(updates)
-        rescue JSON::GeneratorError => _e # this can be raised by activerecord if the string is not UTF-8.
-          env["INBOUND_REQUEST_LOG"].update_columns(updates.except(:response_body))
+      if logging && env["INBOUND_REQUEST_LOG"]
+        RailsApiLogger.safely do
+          updates = {response_code: status, ended_at: Time.current}
+          updates[:response_body] = if skip_response_body?(env)
+            "[Skipped]"
+          else
+            parsed_body(body)
+          end
+          # this usually works. let's be optimistic.
+          begin
+            env["INBOUND_REQUEST_LOG"].update_columns(updates)
+          rescue JSON::GeneratorError => _e # this can be raised by activerecord if the string is not UTF-8.
+            env["INBOUND_REQUEST_LOG"].update_columns(updates.except(:response_body))
+          end
         end
       end
       [status, headers, body]

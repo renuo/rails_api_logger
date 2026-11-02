@@ -59,7 +59,7 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres same db and separate target | rails 8.0
+        - name: tests postgres same db | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "true"
@@ -71,7 +71,7 @@ blocks:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres separate db and separate target | rails 6.1
+        - name: tests postgres separate db and separate target | rails 8.1
           env_vars:
             - name: SAME_DB
               value: "false"
@@ -82,57 +82,49 @@ blocks:
             - name: RAILS_ENV
               value: test
             - name: BUNDLE_GEMFILE
-              value: /home/semaphore/rails_api_logger/gemfiles/rails_6.1.gemfile
+              value: /home/semaphore/rails_api_logger/gemfiles/rails_8.1.gemfile
           commands:
             - sem-service start postgres 14
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres separate db and separate target | rails 7.0
+        - name: tests mysql separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "false"
             - name: SAME_TARGET
               value: "false"
             - name: TARGET_DB
-              value: postgres
+              value: mysql
             - name: RAILS_ENV
               value: test
-            - name: BUNDLE_GEMFILE
-              value: /home/semaphore/rails_api_logger/gemfiles/rails_7.0.gemfile
           commands:
-            - sem-service start postgres 14
+            - sem-service start mysql 8.0
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres separate db and separate target | rails 7.1
+        - name: tests mysql separate db and same target | rails 8.0
           env_vars:
             - name: SAME_DB
               value: "false"
             - name: SAME_TARGET
-              value: "false"
+              value: "true"
             - name: TARGET_DB
-              value: postgres
+              value: mysql
             - name: RAILS_ENV
               value: test
-            - name: BUNDLE_GEMFILE
-              value: /home/semaphore/rails_api_logger/gemfiles/rails_7.1.gemfile
           commands:
-            - sem-service start postgres 14
+            - sem-service start mysql 8.0
             - bin/rails db:create db:migrate
             - bundle exec rspec
-        - name: tests postgres separate db and separate target | rails 7.2
+        - name: tests mysql same db | rails 8.0
           env_vars:
             - name: SAME_DB
-              value: "false"
-            - name: SAME_TARGET
-              value: "false"
+              value: "true"
             - name: TARGET_DB
-              value: postgres
+              value: mysql
             - name: RAILS_ENV
               value: test
-            - name: BUNDLE_GEMFILE
-              value: /home/semaphore/rails_api_logger/gemfiles/rails_7.2.gemfile
           commands:
-            - sem-service start postgres 14
+            - sem-service start mysql 8.0
             - bin/rails db:create db:migrate
             - bundle exec rspec
         - name: tests sqlite separate db and separate target | rails 8.0

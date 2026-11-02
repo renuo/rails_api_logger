@@ -23,6 +23,14 @@ class MyApp
   end
 end
 
+class MyTransactionalApp < MyApp
+  def call(env)
+    ActiveRecord::Base.transaction do
+      super.tap { Book.create!(title: "Another Book", author: "John Doe") }
+    end
+  end
+end
+
 RSpec.describe RailsApiLogger::Middleware do
   let(:input) { {"book" => {"title" => "Harry Potter", "author" => "J.K. Rowling"}} }
   let(:host_regexp) { /.*/ }
@@ -154,6 +162,74 @@ RSpec.describe RailsApiLogger::Middleware do
       expect(response.status).to eq(200)
       expect(response.body).to eq("Hello World")
       expect(RailsApiLogger::InboundRequestLog.count).to eq(0)
+    end
+  end
+
+  context "when the logging database is down" do
+    before { simulate_logging_database_outage }
+    after { restore_logging_database }
+
+    it "still runs the app and reports the error" do
+      expect { response }.to change(Book, :count).by(1)
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("Hello World")
+      expect(logging_errors).not_to be_empty
+    end
+  end
+
+  context "when the log can't be completed after the app ran" do
+    before { make_logs_fail(RailsApiLogger::InboundRequestLog, :update_columns) }
+
+    it "still returns the response of the app" do
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("Hello World")
+      expect(logging_errors).to include(an_instance_of(ActiveRecord::StatementInvalid))
+    end
+  end
+
+  context "when attaching the loggable or the client reference fails" do
+    before { make_logs_fail(RailsApiLogger::InboundRequestLog, :update) }
+
+    it "still returns the response of the app and logs it" do
+      expect(response.status).to eq(200)
+      expect(logging_errors).to include(an_instance_of(ActiveRecord::StatementInvalid))
+      inbound_request_log = RailsApiLogger::InboundRequestLog.last
+      expect(inbound_request_log.response_code).to eq(200)
+      expect(inbound_request_log.loggable).to be_nil
+    end
+
+    context "inside a transaction of the app" do
+      let(:app) { described_class.new(MyTransactionalApp.new) }
+
+      before { make_logs_fail(RailsApiLogger::InboundRequestLog, :update) { fail_in_database } }
+
+      it "keeps the transaction of the app usable" do
+        expect { response }.to change(Book, :count).by(2)
+        expect(response.status).to eq(200)
+        expect(logging_errors).to include(an_instance_of(ActiveRecord::StatementInvalid))
+      end
+    end
+  end
+
+  context "when the app attaches the loggable inside a transaction" do
+    let(:app) { described_class.new(MyTransactionalApp.new) }
+
+    it "logs the request with the loggable" do
+      expect(response.status).to eq(200)
+      inbound_request_log = RailsApiLogger::InboundRequestLog.last
+      expect(inbound_request_log.loggable_type).to eq("Book")
+      expect(inbound_request_log.client_reference).to eq("ref-123")
+      expect(logging_errors).to be_empty
+    end
+  end
+
+  context "when ActiveRecord.permanent_connection_checkout is :disallowed" do
+    around { |example| with_permanent_connection_checkout_disallowed(&example) }
+
+    it "logs the request" do
+      expect(response.status).to eq(200)
+      expect(logging_errors).to be_empty
+      expect(RailsApiLogger::InboundRequestLog.last.response_code).to eq(200)
     end
   end
 

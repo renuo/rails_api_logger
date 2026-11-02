@@ -6,8 +6,8 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[Rails.version.split(".
       t.text :request_body
       t.text :response_body
       t.integer :response_code
-      t.timestamp :started_at
-      t.timestamp :ended_at
+      t.datetime :started_at
+      t.datetime :ended_at
       t.references :loggable, index: true, polymorphic: true
       t.string :client_reference, index: true
       t.timestamps null: false
@@ -19,8 +19,8 @@ class CreateRailsApiLoggerTable < ActiveRecord::Migration[Rails.version.split(".
       t.text :request_body
       t.text :response_body
       t.integer :response_code
-      t.timestamp :started_at
-      t.timestamp :ended_at
+      t.datetime :started_at
+      t.datetime :ended_at
       t.references :loggable, index: true, polymorphic: true
       t.string :client_reference, index: true
       t.timestamps null: false

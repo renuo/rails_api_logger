@@ -1,11 +1,11 @@
 PATH
   remote: ..
   specs:
-    rails_api_logger (0.11.0)
-      activejob (>= 6.0)
-      activerecord (>= 6.0)
+    rails_api_logger (0.12.0)
+      activejob (>= 8.0)
+      activerecord (>= 8.0)
       nokogiri
-      railties (>= 6.0)
+      railties (>= 8.0)
       zeitwerk (>= 2.0.0)
 
 GEM
@@ -261,7 +261,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
-    uri (1.0.3)
+    uri (1.1.2)
     useragent (0.16.11)
     webmock (3.25.1)
       addressable (>= 2.8.0)

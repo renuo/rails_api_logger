@@ -18,18 +18,16 @@ module RailsApiLogger
   # Logging must never break the host app: report the error and go on without the log.
   # Inside an open transaction the log runs in a savepoint, so that a failed write
   # doesn't abort the transaction of the app (Postgres).
+  # A connection that is not leased yet can't have an open transaction, so we don't lease one just to ask:
+  # with `permanent_connection_checkout = :disallowed` that would raise and no log would ever be written.
   def self.safely(&block)
-    if RequestLog.connection.transaction_open?
+    if RequestLog.connection_pool.active_connection?&.transaction_open?
       RequestLog.transaction(requires_new: true, &block)
     else
       yield
     end
   rescue => e
-    if Rails.respond_to?(:error)
-      Rails.error.report(e, handled: true)
-    else
-      Rails.logger.error("[RailsApiLogger] #{e.class}: #{e.message}")
-    end
+    Rails.error.report(e, handled: true, source: "rails_api_logger")
     nil
   end
 end

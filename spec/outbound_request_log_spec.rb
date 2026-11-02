@@ -109,51 +109,119 @@ RSpec.describe RailsApiLogger::OutboundRequestLog do
     end
   end
 
-  describe "if the log can't be saved" do
+  describe "if the log can't be written" do
     let(:uri) { URI("http://example.com/books") }
     let(:request) { Net::HTTP::Post.new(uri) }
     let(:response) { Struct.new(:code, :body).new(200, "ok") }
 
-    it "still sends the request when the log can't be created" do
-      allow(described_class).to receive(:from_request).and_raise(ActiveRecord::ConnectionNotEstablished)
-      expect_logging_error(ActiveRecord::ConnectionNotEstablished)
+    context "because the logging database is down" do
+      before { simulate_logging_database_outage }
+      after { restore_logging_database }
 
-      sent = false
-      result = RailsApiLogger::Logger.new.call(uri, request) do
-        sent = true
-        response
+      it "still sends the request and returns its response" do
+        sent = false
+        result = RailsApiLogger::Logger.new.call(uri, request) do
+          sent = true
+          response
+        end
+
+        expect(sent).to be(true)
+        expect(result).to eq(response)
+        expect(logging_errors).not_to be_empty
+      end
+    end
+
+    context "because saving it fails" do
+      before { make_logs_fail(described_class, :save!) }
+
+      it "still returns the response" do
+        expect(RailsApiLogger::Logger.new.call(uri, request) { response }).to eq(response)
+        expect(logging_errors).to include(an_instance_of(ActiveRecord::StatementInvalid))
       end
 
-      expect(sent).to be(true)
-      expect(result).to eq(response)
+      it "still raises the error of the request" do
+        expect {
+          RailsApiLogger::Logger.new.call(uri, request) { raise Timeout::Error }
+        }.to raise_error(Timeout::Error)
+      end
     end
 
-    it "still returns the response when the log can't be saved" do
-      allow_any_instance_of(described_class).to receive(:save!).and_raise(ActiveRecord::StatementInvalid)
-      expect_logging_error(ActiveRecord::StatementInvalid)
+    context "because reading the response fails" do
+      let(:response) do
+        Class.new do
+          def code = 200
 
-      expect(RailsApiLogger::Logger.new.call(uri, request) { response }).to eq(response)
-    end
-
-    it "keeps the transaction of the app usable when the log fails" do
-      allow(described_class).to receive(:from_request) { described_class.connection.execute("SELECT * FROM missing_table") }
-      expect_logging_error(ActiveRecord::StatementInvalid)
-
-      ActiveRecord::Base.transaction do
-        Book.create!(title: "Before", author: "Author")
-        RailsApiLogger::Logger.new.call(uri, request) { response }
-        Book.create!(title: "After", author: "Author")
+          def body = raise(IOError, "closed stream")
+        end.new
       end
 
-      expect(Book.count).to eq(2)
+      it "still returns the response and logs the request without its body" do
+        expect(RailsApiLogger::Logger.new.call(uri, request) { response }).to eq(response)
+        expect(logging_errors).to include(an_instance_of(IOError))
+        log = described_class.last
+        expect(log.response_code).to eq(200)
+        expect(log.response_body).to be_nil
+        expect(log.ended_at).to be_present
+      end
     end
 
-    it "still raises the error of the request" do
-      allow_any_instance_of(described_class).to receive(:save!).and_raise(ActiveRecord::StatementInvalid)
+    context "because a value doesn't fit its column", if: ENV["TARGET_DB"] == "mysql" do
+      let(:uri) { URI("http://example.com/#{"a" * 300}") }
 
-      expect {
-        RailsApiLogger::Logger.new.call(uri, request) { raise Timeout::Error }
-      }.to raise_error(Timeout::Error)
+      it "still returns the response" do
+        expect(RailsApiLogger::Logger.new.call(uri, request) { response }).to eq(response)
+        expect(logging_errors).to include(an_instance_of(ActiveRecord::ValueTooLong))
+      end
+    end
+
+    # These only abort the transaction on Postgres with a shared connection: the savepoint is what keeps it usable.
+    context "inside a transaction of the app" do
+      def call_inside_transaction
+        ActiveRecord::Base.transaction do
+          Book.create!(title: "Before", author: "Author")
+          RailsApiLogger::Logger.new.call(uri, request) { response }
+          Book.create!(title: "After", author: "Author")
+        end
+      end
+
+      it "keeps the transaction usable when creating the log fails" do
+        allow(described_class).to receive(:from_request) { fail_in_database }
+
+        call_inside_transaction
+
+        expect(Book.count).to eq(2)
+        expect(logging_errors).to include(an_instance_of(ActiveRecord::StatementInvalid))
+      end
+
+      it "keeps the transaction usable when saving the log fails" do
+        make_logs_fail(described_class, :save!) { fail_in_database }
+
+        call_inside_transaction
+
+        expect(Book.count).to eq(2)
+        expect(logging_errors).to include(an_instance_of(ActiveRecord::StatementInvalid))
+      end
+
+      it "persists the log when the transaction commits" do
+        call_inside_transaction
+
+        expect(Book.count).to eq(2)
+        expect(described_class.count).to eq(1)
+        expect(described_class.last.ended_at).to be_present
+        expect(logging_errors).to be_empty
+      end
+    end
+  end
+
+  describe "when ActiveRecord.permanent_connection_checkout is :disallowed" do
+    around { |example| with_permanent_connection_checkout_disallowed(&example) }
+
+    it "logs the request" do
+      uri = URI("http://example.com/books")
+      RailsApiLogger::Logger.new.call(uri, Net::HTTP::Post.new(uri)) { Struct.new(:code, :body).new(200, "ok") }
+
+      expect(logging_errors).to be_empty
+      expect(described_class.last.response_code).to eq(200)
     end
   end
 end

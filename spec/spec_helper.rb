@@ -24,15 +24,64 @@ RSpec.configure do |config|
   end
 end
 
-module ErrorReportingHelpers
-  # Rails.error exists only on Rails 7+; on Rails 6 the error goes to Rails.logger.
-  def expect_logging_error(error_class)
-    if Rails.respond_to?(:error)
-      expect(Rails.error).to receive(:report).with(an_instance_of(error_class), handled: true).at_least(:once)
-    else
-      expect(Rails.logger).to receive(:error).with(/#{error_class}/).at_least(:once)
+module LoggingFailureHelpers
+  class ReportedErrors
+    attr_reader :errors
+
+    def initialize
+      @errors = []
     end
+
+    def report(error, source:, **)
+      errors << error if source == "rails_api_logger"
+    end
+  end
+
+  def logging_errors
+    @reported_errors.errors
+  end
+
+  def make_logs_fail(log_class, method, &failure)
+    failure ||= proc { raise ActiveRecord::StatementInvalid }
+    allow(log_class).to receive(:from_request).and_wrap_original do |original, *args, **kwargs|
+      original.call(*args, **kwargs).tap { |log| allow(log).to receive(method, &failure) }
+    end
+  end
+
+  def fail_in_database
+    RailsApiLogger::RequestLog.with_connection { |connection| connection.execute("SELECT * FROM missing_table") }
+  end
+
+  def simulate_logging_database_outage
+    config = RailsApiLogger::RequestLog.connection_db_config.configuration_hash
+    unreachable = (config[:adapter] == "sqlite3") ? {database: "/nonexistent/logs.sqlite3"} : {host: "127.0.0.1", port: 1}
+    RailsApiLogger::RequestLog.establish_connection(config.merge(unreachable))
+  end
+
+  def restore_logging_database
+    RailsApiLogger::RequestLog.remove_connection
+    RailsApiLogger::RequestLog.connects_to(**RailsApiLogger.connects_to) if RailsApiLogger.connects_to
+  end
+
+  def with_permanent_connection_checkout_disallowed
+    previous = ActiveRecord.permanent_connection_checkout
+    ActiveRecord.permanent_connection_checkout = :disallowed
+    ActiveRecord::Base.connection_handler.clear_active_connections!(:all)
+    yield
+  ensure
+    ActiveRecord.permanent_connection_checkout = previous
   end
 end
 
-RSpec.configure { |config| config.include ErrorReportingHelpers }
+RSpec.configure do |config|
+  config.include LoggingFailureHelpers
+
+  config.before do
+    @reported_errors = LoggingFailureHelpers::ReportedErrors.new
+    Rails.error.subscribe(@reported_errors)
+  end
+
+  config.after do
+    Rails.error.unsubscribe(@reported_errors)
+  end
+end

@@ -23,7 +23,7 @@ This gem creates two database tables to log the following information:
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Requires Rails 8.0 or newer. Add this line to your application's Gemfile:
 
 ```ruby
 gem 'rails_api_logger'
@@ -108,7 +108,7 @@ This will guarantee that the log is always persisted, even in case of errors.
 ### Errors while logging
 
 Logging never breaks your app. If a log can't be written, for example because the logging database is down,
-the error is reported to `Rails.error` (on Rails 6, to `Rails.logger`) and the request goes on without a log.
+the error is reported to `Rails.error` with source `rails_api_logger` and the request goes on without a log.
 
 ### Database Transactions Caveats
 
@@ -255,13 +255,13 @@ end
 
 ## Development
 
-We use Appraisals to un on different Rails versions. This is a run example:
+We use Appraisals to run on different Rails versions. This is a run example:
 
 ```bash
 export SAME_TARGET=false 
 export SAME_DB=false 
 export TARGET_DB=postgres 
-export BUNDLE_GEMFILE=/Users/alessandrorodi/RenuoWorkspace/rails_api_logger/gemfiles/rails_6.1.gemfile 
+export BUNDLE_GEMFILE=/Users/alessandrorodi/RenuoWorkspace/rails_api_logger/gemfiles/rails_8.0.gemfile 
 bundle exec rails db:create db:migrate
 bundle exec rspec
 ```

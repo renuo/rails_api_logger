@@ -131,6 +131,18 @@ RSpec.describe RailsApiLogger::Middleware do
         expect(inbound_request_log.response_body).to be_nil
       end
     end
+
+    context "when the response body is valid UTF-8 in a binary-encoded string" do
+      let(:app) do
+        RailsApiLogger::Middleware.new(MyApp.new(response_body: "Grüezi".b), path_regexp: path_regexp)
+      end
+
+      it "logs the response body" do
+        expect(response.status).to eq(200)
+        inbound_request_log = RailsApiLogger::InboundRequestLog.first
+        expect(inbound_request_log.response_body).to eq("Grüezi")
+      end
+    end
   end
 
   context "when the HTTP_HOST does not match the host_regexp" do

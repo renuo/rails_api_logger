@@ -290,10 +290,6 @@ Possible combinations:
 | true    | -           | sqlite    | Same connection pool so the separate target is ignored.              |
 
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the
-version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version,
-push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
 ### Start dummy app
 
 You can spin up the dummy rails app with the following command:
@@ -307,6 +303,22 @@ and invoke the API endpoints. Here are some examples:
 ```bash
 curl -X POST http://localhost:3000/api/books -d '{"book": {"name": "John Doe"}}' -H "Content-Type: application/json"
 ```
+
+## Release
+
+1. Bump the version in `lib/rails_api_logger/version.rb`, run `bundle exec appraisal install` to update the
+   `gemfiles/*.gemfile.lock` files, update `CHANGELOG.md` and commit to `main`.
+1. Tag the commit with the bare version and push the tag:
+
+   ```sh
+   git tag -a 1.2.3 -m 1.2.3
+   git push origin 1.2.3
+   ```
+
+1. Create a GitHub release for the tag with the release notes.
+
+Semaphore runs the tests on the tag and, when they pass, promotes the `release` pipeline, which pushes the gem to
+[rubygems.org](https://rubygems.org). It fails when the tag does not match the gem version.
 
 ## Contributing
 

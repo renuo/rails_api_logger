@@ -3,7 +3,7 @@ name: rails_api_logger
 agent:
   machine:
     type: f1-standard-2
-    os_image: ubuntu2204
+    os_image: ubuntu2404
 auto_cancel:
   running:
     when: "true"
@@ -18,11 +18,11 @@ blocks:
       prologue:
         commands:
           - checkout --use-cache
+          - sem-version ruby $(cat .ruby-version) -f
           - cache restore
           - bundle config set path 'vendor/bundle'
           - bundle config set clean 'true'
           - bundle install -j 4
-
           - cache store
       env_vars:
         - name: BUNDLE_GEMFILE
@@ -30,7 +30,7 @@ blocks:
       jobs:
         - name: linter
           commands:
-            - bundle exec standardrb
+            - bin/fastcheck
         - name: tests postgres separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -43,8 +43,7 @@ blocks:
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests postgres separate db and same target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -57,8 +56,7 @@ blocks:
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests postgres same db | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -69,8 +67,7 @@ blocks:
               value: test
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests postgres separate db and separate target | rails 8.1
           env_vars:
             - name: SAME_DB
@@ -85,8 +82,7 @@ blocks:
               value: /home/semaphore/rails_api_logger/gemfiles/rails_8.1.gemfile
           commands:
             - sem-service start postgres 14
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests mysql separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -99,8 +95,7 @@ blocks:
               value: test
           commands:
             - sem-service start mysql 8.0
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests mysql separate db and same target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -113,8 +108,7 @@ blocks:
               value: test
           commands:
             - sem-service start mysql 8.0
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests mysql same db | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -125,8 +119,7 @@ blocks:
               value: test
           commands:
             - sem-service start mysql 8.0
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests sqlite separate db and separate target | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -138,8 +131,7 @@ blocks:
             - name: RAILS_ENV
               value: test
           commands:
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests sqlite same db | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -149,8 +141,7 @@ blocks:
             - name: RAILS_ENV
               value: test
           commands:
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
         - name: tests webrick | rails 8.0
           env_vars:
             - name: SAME_DB
@@ -162,8 +153,9 @@ blocks:
             - name: BUNDLE_GEMFILE
               value: /home/semaphore/rails_api_logger/gemfiles/rails_webrick_8.0.gemfile
           commands:
-            - bin/rails db:create db:migrate
-            - bundle exec rspec
+            - bin/check
 promotions:
-  - name: main
-    pipeline_file: main-deploy.yml
+  - name: release
+    pipeline_file: release.yml
+    auto_promote:
+      when: "result = 'passed' and tag =~ '^[0-9]+[.][0-9]+[.][0-9]+$'"

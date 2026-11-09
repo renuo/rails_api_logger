@@ -28,15 +28,23 @@ module RailsApiLogger
     # Bodies that are not valid UTF-8 (file uploads, images, PDFs...) can't be stored as text,
     # so only their size is logged.
     def self.parse_body(body)
-      return body unless body.is_a?(String)
+      return filter(body) unless body.is_a?(String)
 
       body = body.dup.force_encoding("UTF-8")
       return "[Binary: #{body.bytesize} bytes]" unless body.valid_encoding?
       return body if body.blank?
 
-      JSON.parse(body)
+      filter(JSON.parse(body))
     rescue JSON::ParserError
       body
+    end
+
+    # Hides the values of sensitive keys (password, token...), as Rails does in its own logs.
+    def self.filter(body)
+      return body unless RailsApiLogger.filter_parameters
+      return body unless body.is_a?(Hash) || body.is_a?(Array)
+
+      ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters).filter(body)
     end
 
     def from_response(response, skip_response_body: false)

@@ -55,4 +55,12 @@ RSpec.describe RailsApiLogger::RequestLog do
       expect(log.response_body).to eq("[Binary: 13 bytes]")
     end
   end
+
+  describe "#from_response with sensitive data in the body" do
+    it "filters it with Rails filter_parameters" do
+      response = Struct.new(:code, :body).new(200, {user: "bob", password: "hunter2"}.to_json)
+      log = RailsApiLogger::OutboundRequestLog.new.from_response(response)
+      expect(log.response_body).to eq("user" => "bob", "password" => "[FILTERED]")
+    end
+  end
 end

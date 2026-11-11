@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description = "Log inbound and outbound API requests in your Rails application"
   spec.homepage = "https://github.com/renuo/rails_api_logger"
   spec.license = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/renuo/rails_api_logger"

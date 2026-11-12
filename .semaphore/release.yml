@@ -1,0 +1,21 @@
+version: v1.0
+name: release
+agent:
+  machine:
+    type: f1-standard-2
+    os_image: ubuntu2404
+
+blocks:
+  - name: release
+    task:
+      secrets:
+        - name: rubygems-deploy
+      jobs:
+        - name: gem push
+          commands:
+            - checkout --use-cache
+            - sem-version ruby $(cat .ruby-version) -f
+            - VERSION=$(ruby -e "puts Gem::Specification.load('rails_api_logger.gemspec').version")
+            - test "$VERSION" = "$SEMAPHORE_GIT_TAG_NAME"
+            - gem build rails_api_logger.gemspec
+            - gem push rails_api_logger-$VERSION.gem

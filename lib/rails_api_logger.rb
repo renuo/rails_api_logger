@@ -15,6 +15,9 @@ loader.setup
 module RailsApiLogger
   mattr_accessor :connects_to
 
+  # Hide sensitive values in logged bodies with Rails' config.filter_parameters. Set to false to log them as they are.
+  mattr_accessor :filter_parameters, default: true
+
   # Logging must never break the host app: report the error and go on without the log.
   # Inside an open transaction the log runs in a savepoint, so that a failed write
   # doesn't abort the transaction of the app (Postgres).

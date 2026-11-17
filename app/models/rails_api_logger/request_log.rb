@@ -42,7 +42,9 @@ module RailsApiLogger
     # Hides the values of sensitive keys (password, token...), as Rails does in its own logs.
     def self.filter(body)
       return body unless RailsApiLogger.filter_parameters
-      return body unless body.is_a?(Hash) || body.is_a?(Array)
+      # ParameterFilter filters the arrays inside a hash, but it only accepts a hash at the top.
+      return body.map { |item| filter(item) } if body.is_a?(Array)
+      return body unless body.is_a?(Hash)
 
       ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters).filter(body)
     end

@@ -62,5 +62,11 @@ RSpec.describe RailsApiLogger::RequestLog do
       log = RailsApiLogger::OutboundRequestLog.new.from_response(response)
       expect(log.response_body).to eq("user" => "bob", "password" => "[FILTERED]")
     end
+
+    it "filters a body that is an array" do
+      response = Struct.new(:code, :body).new(200, [{password: "hunter2"}, 1, "a", [{token: "abc"}]].to_json)
+      log = RailsApiLogger::OutboundRequestLog.new.from_response(response)
+      expect(log.response_body).to eq([{"password" => "[FILTERED]"}, 1, "a", [{"token" => "[FILTERED]"}]])
+    end
   end
 end

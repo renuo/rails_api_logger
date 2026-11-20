@@ -1,3 +1,9 @@
+# Unreleased
+
+* Sensitive values in request and response bodies, such as passwords or tokens, are stored as `[FILTERED]`. The
+  gem uses the app's `config.filter_parameters`, the same list as the Rails logs. Before, they were stored as they
+  are. To keep the old behavior, set `config.rails_api_logger.filter_parameters = false`.
+
 # 1.0.0
 
 * **Breaking:** Drop support for Rails < 8.0 and Ruby < 3.2.

@@ -151,6 +151,13 @@ config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware,
                                 skip_response_body_regexp: /api\/letters/
 ```
 
+Sensitive values in the bodies, such as passwords or tokens, are stored as `[FILTERED]`.
+The gem uses the same list as the Rails logs: `config.filter_parameters`. To store them as they are:
+
+```ruby
+config.rails_api_logger.filter_parameters = false
+```
+
 Bodies that are not valid UTF-8, such as file uploads, images or PDFs, are not stored.
 The log keeps only their size, for example `"[Binary: 2048 bytes]"`.
 

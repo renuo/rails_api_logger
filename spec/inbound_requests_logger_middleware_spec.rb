@@ -266,4 +266,18 @@ RSpec.describe RailsApiLogger::Middleware do
       expect(RailsApiLogger::InboundRequestLog.last.request_body).to match(/\A\[Binary: \d+ bytes\]\z/)
     end
   end
+
+  context "when the request is an HTML form" do
+    let(:response) do
+      request.post("http://api.example.org/users/sign_in",
+        :input => "user[email]=bob%40example.com&user[password]=hunter2",
+        "CONTENT_TYPE" => "application/x-www-form-urlencoded")
+    end
+
+    it "filters the sensitive values, as for a JSON body" do
+      expect(response.status).to eq(200)
+      expect(RailsApiLogger::InboundRequestLog.last.request_body)
+        .to eq("user" => {"email" => "bob@example.com", "password" => "[FILTERED]"})
+    end
+  end
 end

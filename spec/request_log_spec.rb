@@ -68,5 +68,32 @@ RSpec.describe RailsApiLogger::RequestLog do
       log = RailsApiLogger::OutboundRequestLog.new.from_response(response)
       expect(log.response_body).to eq([{"password" => "[FILTERED]"}, 1, "a", [{"token" => "[FILTERED]"}]])
     end
+
+    it "keeps bodies that are not a hash or an array as they are" do
+      {
+        nil => nil,
+        "" => "",
+        "plain text" => "plain text",
+        "<user><password>hunter2</password></user>" => "<user><password>hunter2</password></user>",
+        "42" => 42,
+        "\"a\"" => "a",
+        "null" => nil
+      }.each do |body, stored|
+        response = Struct.new(:code, :body).new(200, body)
+        log = RailsApiLogger::OutboundRequestLog.new.from_response(response)
+        expect(log.response_body).to eq(stored)
+      end
+    end
+  end
+
+  describe ".from_request with a form body" do
+    after { RailsApiLogger::OutboundRequestLog.delete_all }
+
+    it "filters it with Rails filter_parameters" do
+      request = Net::HTTP::Post.new(URI("https://auth.example.com/oauth/token"))
+      request.set_form_data("grant_type" => "client_credentials", "client_secret" => "s3cret")
+      log = RailsApiLogger::OutboundRequestLog.from_request(request)
+      expect(log.request_body).to eq("grant_type" => "client_credentials", "client_secret" => "[FILTERED]")
+    end
   end
 end

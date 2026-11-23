@@ -19,6 +19,8 @@ module RailsApiLogger
         body = "[Skipped]"
       else
         request_body = (request.body.respond_to?(:read) ? request.body.read : request.body)
+        # A form body (an HTML login, an OAuth token request...) is a string: parse it so it can be filtered.
+        request_body = Rack::Utils.parse_nested_query(request_body) if form?(request)
         body = parse_body(request_body)
       end
       create(path: request.path, request_body: body, method: request.method, started_at: Time.current,
@@ -28,16 +30,33 @@ module RailsApiLogger
     # Bodies that are not valid UTF-8 (file uploads, images, PDFs...) can't be stored as text,
     # so only their size is logged.
     def self.parse_body(body)
-      return body unless body.is_a?(String)
+      return filter(body) unless body.is_a?(String)
 
       body = body.dup.force_encoding("UTF-8")
       return "[Binary: #{body.bytesize} bytes]" unless body.valid_encoding?
       return body if body.blank?
 
-      JSON.parse(body)
+      filter(JSON.parse(body))
     rescue JSON::ParserError
       body
     end
+
+    def self.form?(request) = request.content_type.to_s.start_with?("application/x-www-form-urlencoded")
+
+    # Hides the values of sensitive keys (password, token...), as Rails does in its own logs.
+    def self.filter(body)
+      return body unless RailsApiLogger.filter_parameters
+
+      # ParameterFilter filters the arrays inside a hash, but it only accepts a hash at the top.
+      case body
+      when Array then body.map { |item| filter(item) }
+      when Hash then ActiveSupport::ParameterFilter.new(precompiled_filters).filter(body)
+      else body
+      end
+    end
+
+    # The filters that Rails precompiles at boot, the same ones that ActionDispatch uses for the Rails logs.
+    def self.precompiled_filters = Rails.application.env_config["action_dispatch.parameter_filter"]
 
     def from_response(response, skip_response_body: false)
       self.response_code = response.code

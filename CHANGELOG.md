@@ -2,6 +2,11 @@
 
 * Fix `NoMethodError` when an `ActionController::API` controller calls `attach_inbound_request_loggable` or
   `attach_inbound_request_client_reference`.
+* Sensitive values in request and response bodies, such as passwords or tokens, are stored as `[FILTERED]`. The
+  gem uses the app's `config.filter_parameters`, the same list as the Rails logs. Before, they were stored as they
+  are. To keep the old behavior, set `config.rails_api_logger.filter_parameters = false`.
+* Form bodies (`application/x-www-form-urlencoded`, such as an HTML login form or an OAuth token request) are stored
+  as a hash, like JSON bodies, so they are filtered too.
 
 # 1.0.0
 

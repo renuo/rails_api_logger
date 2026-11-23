@@ -1,3 +1,8 @@
+# Unreleased
+
+* Fix `NoMethodError` when an `ActionController::API` controller calls `attach_inbound_request_loggable` or
+  `attach_inbound_request_client_reference`.
+
 # 1.0.0
 
 * **Breaking:** Drop support for Rails < 8.0 and Ruby < 3.2.

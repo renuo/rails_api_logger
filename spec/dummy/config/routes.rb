@@ -6,5 +6,6 @@ Rails.application.routes.draw do
   namespace :api do
     resources :books, only: [:index, :create, :update]
     get :soap, to: "soap#index"
+    post :references, to: "references#create"
   end
 end

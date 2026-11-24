@@ -7,6 +7,7 @@
   are. To keep the old behavior, set `config.rails_api_logger.filter_parameters = false`.
 * Form bodies (`application/x-www-form-urlencoded`, such as an HTML login form or an OAuth token request) are stored
   as a hash, like JSON bodies, so they are filtered too.
+* Sensitive values in the query string of outbound requests, such as an API key, are stored as `[FILTERED]` too.
 
 # 1.0.0
 

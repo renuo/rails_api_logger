@@ -23,7 +23,7 @@ module RailsApiLogger
         request_body = Rack::Utils.parse_nested_query(request_body) if form?(request)
         body = parse_body(request_body)
       end
-      create(path: request.path, request_body: body, method: request.method, started_at: Time.current,
+      create(path: filter_path(request.path), request_body: body, method: request.method, started_at: Time.current,
         loggable: loggable, client_reference: client_reference)
     end
 
@@ -39,6 +39,15 @@ module RailsApiLogger
       filter(JSON.parse(body))
     rescue JSON::ParserError
       body
+    end
+
+    # The query string can have secrets too, such as an API key. Filter it as the Rails logs do.
+    def self.filter_path(path)
+      return path unless RailsApiLogger.filter_parameters
+
+      path_info, query = path.split("?", 2)
+      ActionDispatch::Request.new("PATH_INFO" => path_info, "QUERY_STRING" => query.to_s,
+        "action_dispatch.parameter_filter" => precompiled_filters).filtered_path
     end
 
     def self.form?(request) = request.content_type.to_s.start_with?("application/x-www-form-urlencoded")

@@ -48,6 +48,14 @@ RSpec.describe RailsApiLogger::RequestLog do
     end
   end
 
+  describe ".from_request with sensitive data in the query string" do
+    it "filters it with Rails filter_parameters" do
+      request = Net::HTTP::Get.new(URI("http://example.com/v1/charge?api_key=sk_live_123&amount=10"))
+      log = RailsApiLogger::OutboundRequestLog.from_request(request)
+      expect(log.path).to eq("/v1/charge?api_key=[FILTERED]&amount=10")
+    end
+  end
+
   describe "#from_response with a body that is not valid UTF-8" do
     it "logs the size of the body instead of its bytes" do
       response = Struct.new(:code, :body).new(200, "%PDF-1.7\n\xE2\xE3\xCF\xD3".b)

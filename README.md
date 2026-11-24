@@ -151,7 +151,7 @@ config.middleware.insert_before Rails::Rack::Logger, RailsApiLogger::Middleware,
                                 skip_response_body_regexp: /api\/letters/
 ```
 
-Sensitive values in the bodies, such as passwords or tokens, are stored as `[FILTERED]`.
+Sensitive values in the bodies and in the query string, such as passwords, tokens or API keys, are stored as `[FILTERED]`.
 The gem uses the same list as the Rails logs: `config.filter_parameters`. To store them as they are:
 
 ```ruby
